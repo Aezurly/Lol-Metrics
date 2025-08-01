@@ -4,33 +4,34 @@ import * as path from 'path';
 import { MatchService } from 'src/match/match.service';
 import { PlayerService } from 'src/player/player.service';
 import { TeamService } from 'src/team/team.service';
-
+import { RawMatchData } from '@common/interfaces/match';
 @Injectable()
 export class DataLoaderService {
   constructor(
     private readonly matchService: MatchService,
-    private readonly playerService: PlayerService,
+    readonly playerService: PlayerService,
     private readonly teamService: TeamService,
   ) {}
 
   async loadNewMatches(): Promise<void> {
-    console.log('Loading new matches...');
-    // Chemin vers le dossier data - vous pouvez ajuster ce chemin selon votre structure
     const dataDirectory =
       process.env.DATA_DIRECTORY ||
       path.resolve(process.cwd(), '../Lol-Data-Analyser/data');
 
-    console.log(`Looking for data files in: ${dataDirectory}`);
     const files = await this.getFilesFromDirectory(dataDirectory);
     for (const filePath of files) {
-      const matchId = path.basename(filePath, '.json'); // Plus propre que split
+      const matchId = path.basename(filePath, '.json');
       if (await this.matchService.isProcessed(matchId)) {
         continue;
       }
-      const raw = await this.loadJson(path.join(dataDirectory, filePath));
+      const raw = (await this.loadJson(
+        path.join(dataDirectory, filePath),
+      )) as RawMatchData;
       const match = await this.matchService.normalizeAndSave(raw, matchId);
+      console.log(`Match ${matchId} loaded and normalized.`);
       await this.playerService.updateFromMatch(match);
       await this.teamService.updateTeamStatsFromMatch(match);
+      console.log(`✅ Match ${matchId} processed and teams updated.`);
     }
   }
 

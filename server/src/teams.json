@@ -1,0 +1,114 @@
+{
+  "teams": [
+    {
+      "id": 0,
+      "name": "Marmotte Flip",
+      "playersNames": [
+        "Crampté",
+        "Tahm R",
+        "Cosmo Pluto",
+        "Écureuil Rouge",
+        "Aezurly",
+        "Juju",
+        "Max2mox"
+      ],
+      "LBLCS": true
+    },
+    {
+      "id": 1,
+      "name": "OML",
+      "playersNames": [
+        "gilito345",
+        "Gateway3",
+        "JaggedV",
+        "Glacial Facialz",
+        "OML Jabba"
+      ],
+      "LBLCS": true
+    },
+    {
+      "id": 2,
+      "name": "Monkeys Inc.",
+      "playersNames": [
+        "FallenXWarriorx",
+        "Weeez",
+        "Grim Dafyre",
+        "Glada",
+        "GiraffeRider"
+      ],
+      "LBLCS": false
+    },
+    {
+      "id": 3,
+      "name": "KNS",
+      "playersNames": [
+        "Superstar",
+        "Kyuubi",
+        "Shoutout Wes",
+        "Nate007VC",
+        "Akai Øokami"
+      ],
+      "LBLCS": false
+    },
+    {
+      "id": 4,
+      "name": "Notorious Thieving Racoons",
+      "playersNames": [
+        "SweesshyTheFishy",
+        "Stany",
+        "Dionysos",
+        "Bice",
+        "PenguinJack"
+      ],
+      "LBLCS": false
+    },
+    {
+      "id": 5,
+      "name": "Chosen Inters",
+      "playersNames": [
+        "Chosen",
+        "Brave",
+        "DevilsRizen",
+        "slayer Jinx",
+        "Starchild"
+      ],
+      "LBLCS": false
+    },
+    {
+      "id": 6,
+      "name": "TD Blessed",
+      "playersNames": [
+        "Thordrin",
+        "Riven",
+        "BarbaricChampion",
+        "TWaynee",
+        "king vivi"
+      ],
+      "LBLCS": false
+    },
+    {
+      "id": 7,
+      "name": "Boom What Up",
+      "playersNames": [
+        "JUMBOJONATHAN715",
+        "TacOo4231",
+        "Max Christie",
+        "Stephen Curry",
+        "MeowMeowADC"
+      ],
+      "LBLCS": true
+    },
+    {
+      "id": 8,
+      "name": "Unknown Team",
+      "playersNames": [
+        "Leoxide",
+        "Tgas20",
+        "GLOWINGCRACKIN",
+        "Shenobi",
+        "syrk"
+      ],
+      "LBLCS": false
+    }
+  ]
+}
