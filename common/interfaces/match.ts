@@ -13,6 +13,7 @@ export interface Match {
   teamIds: number[];
   duration: number;
   raw: RawMatchData;
+  stats: Record<string, ParticipantStats>;
 }
 
 export interface RawMatchData {
@@ -38,4 +39,61 @@ export interface Team {
   name: string;
   playersIds: string[];
   matchIds: string[];
+}
+
+export interface ParticipantStats {
+  combat: {
+    kills: number;
+    deaths: number;
+    assists: number;
+    doubleKills?: number;
+    tripleKills?: number;
+    quadraKills?: number;
+    pentaKills?: number;
+    ccScore?: number;
+    ccTime?: number;
+    totalCCTime?: number;
+    longestTimeSpentAlive?: number;
+    timeSpentDead?: number;
+  };
+  damage: {
+    totalDamageToChampions: number;
+    physicalDamageToChampions?: number;
+    magicDamageToChampions?: number;
+    trueDamageToChampions?: number;
+    totalDamageTaken?: number;
+    physicalDamageTaken?: number;
+    magicDamageTaken?: number;
+    trueDamageTaken?: number;
+    totalHealingDone?: number;
+    totalHealingDoneToTeammates?: number;
+    totalDamageShieldedToTeammates?: number;
+  };
+  vision: {
+    visionScore: number;
+    wardsPlaced: number;
+    wardsKilled: number;
+    controlWardPurchased?: number;
+  };
+  income: {
+    goldEarned: number;
+    goldFromPlates?: number;
+    goldFromStructures?: number;
+    goldSpent?: number;
+    totalMinionsKilled?: number;
+    neutralMinionsKilled?: number;
+    neutralMinionsKilledTeamJungle?: number;
+    neutralMinionsKilledEnemyJungle?: number;
+  };
+  objectives: {
+    turretsKilled?: number;
+    turretPlatesDestroyed?: number;
+    totalDamageToTurrets?: number;
+    totalDamageToObjectives?: number;
+    ObjectivesStolen?: number;
+    voidGrubKills?: number;
+    riftHeraldKills?: number;
+    dragonKills?: number;
+    baronKills?: number;
+  };
 }

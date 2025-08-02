@@ -1,10 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { Match, RawMatchData } from '@common/interfaces/match';
+import {
+  Match,
+  ParticipantStats,
+  RawMatchData,
+} from '@common/interfaces/match';
 import { DataStoreService } from '../data-store/data-store.service';
+import { StatsNormalizerService } from './stats-normalizer.service';
 
 @Injectable()
 export class MatchService {
-  constructor(private readonly dataStore: DataStoreService) {}
+  constructor(
+    private readonly dataStore: DataStoreService,
+    private readonly statsNormalizer: StatsNormalizerService,
+  ) {}
 
   async isProcessed(matchId: string): Promise<boolean> {
     return this.dataStore.hasMatch(matchId);
@@ -27,6 +35,7 @@ export class MatchService {
       teamIds: [],
       duration: raw.gameDuration || 0,
       raw: raw,
+      stats: this.getParticipantStats(raw),
     };
     return match;
   }
@@ -36,5 +45,18 @@ export class MatchService {
       return [];
     }
     return raw.participants.map((p) => p.PUUID || '');
+  }
+
+  getParticipantStats(raw: RawMatchData): Record<string, ParticipantStats> {
+    const stats: Record<string, ParticipantStats> = {};
+    if (!raw.participants || !Array.isArray(raw.participants)) {
+      return stats;
+    }
+    raw.participants.forEach((participant) => {
+      const puuid = participant.PUUID || '';
+      stats[puuid] = this.statsNormalizer.extractParticipantStats(participant);
+      console.log(stats[puuid]);
+    });
+    return stats;
   }
 }
