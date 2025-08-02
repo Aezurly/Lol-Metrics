@@ -3,8 +3,10 @@ import { Match, Player, Team } from '@common/interfaces/match';
 import * as fs from 'fs';
 import * as path from 'path';
 
+type ProcessedMatch = Record<string, Omit<Match, 'raw'>>;
+
 export interface DataStore {
-  matches: Record<string, Match>;
+  matches: ProcessedMatch;
   players: Record<string, Player>;
   teams: Record<string, Team>;
 }
@@ -41,7 +43,7 @@ export class DataStoreService implements OnModuleInit {
 
   setMatch(matchId: string, match: Match): void {
     this._matches[matchId] = match;
-    this.saveData();
+    // this.saveData();
   }
 
   getMatch(matchId: string): Match | undefined {
@@ -63,7 +65,7 @@ export class DataStoreService implements OnModuleInit {
 
   setPlayer(playerId: string, player: Player): void {
     this._players[playerId] = player;
-    this.saveData();
+    // this.saveData();
   }
 
   getPlayer(playerId: string): Player | undefined {
@@ -85,7 +87,7 @@ export class DataStoreService implements OnModuleInit {
 
   setTeam(teamId: number, team: Team): void {
     this._teams[teamId] = team;
-    this.saveData();
+    // this.saveData();
   }
 
   getTeam(teamId: number): Team | undefined {
@@ -100,11 +102,17 @@ export class DataStoreService implements OnModuleInit {
     return Object.values(this._teams);
   }
 
-  // Persistence operations
   private async saveData(): Promise<void> {
+    console.warn('Data not saved for now');
     try {
+      const matchesWithoutRaw: ProcessedMatch = Object.fromEntries(
+        Object.entries(this._matches).map(([id, match]) => [
+          id,
+          { ...match, raw: undefined },
+        ]),
+      );
       const data: DataStore = {
-        matches: this._matches,
+        matches: matchesWithoutRaw,
         players: this._players,
         teams: this._teams,
       };

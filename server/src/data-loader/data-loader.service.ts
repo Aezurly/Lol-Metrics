@@ -28,7 +28,6 @@ export class DataLoaderService {
         path.join(dataDirectory, filePath),
       )) as RawMatchData;
       const match = await this.matchService.normalizeAndSave(raw, matchId);
-      console.log(`Match ${matchId} loaded and normalized.`);
       await this.playerService.updateFromMatch(match);
       await this.teamService.updateTeamStatsFromMatch(match);
       console.log(`✅ Match ${matchId} processed and teams updated.`);

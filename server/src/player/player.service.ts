@@ -1,4 +1,4 @@
-import { Player, Match, Role } from '@common/interfaces/match';
+import { Player, Match, Role, PlayerStat } from '@common/interfaces/match';
 import { Injectable } from '@nestjs/common';
 import { DataStoreService } from '../data-store/data-store.service';
 import { TeamService } from '../team/team.service';
@@ -12,9 +12,9 @@ export class PlayerService {
 
   async updateFromMatch(match: Match): Promise<void> {
     for (const playerId of match.playerIds) {
-      let player = this.dataStore.getPlayer(playerId);
+      let player: Player | undefined = this.dataStore.getPlayer(playerId);
       if (!player) {
-        const rawParticipant = match.raw.participants?.find(
+        const rawParticipant = match.raw?.participants?.find(
           (p) => p.PUUID === playerId,
         );
         const playerName = rawParticipant?.RIOT_ID_GAME_NAME || '';
@@ -25,6 +25,7 @@ export class PlayerService {
           teamId: undefined,
           matchIds: [],
           role: this.getPlayerRole(rawParticipant),
+          stats: this.createPlayerStat(),
         };
         this.dataStore.setPlayer(playerId, player);
         if (playerName) {
@@ -35,13 +36,75 @@ export class PlayerService {
 
       if (!player.matchIds.includes(match.id)) {
         player.matchIds.push(match.id);
+        this.updatePlayerStat(match, player);
       }
 
       this.dataStore.setPlayer(playerId, player);
     }
   }
 
-  getPlayerRole(rawParticipant?: any): Role {
+  private updatePlayerStat(match: Match, player: Player): void {
+    const participantStats = match.stats[player.uid];
+    if (!participantStats) {
+      console.warn(
+        `No participant stats found for player ${player.uid} in match ${match.id}`,
+      );
+      return;
+    }
+
+    this.updateChampionPlayCount(player, participantStats.championPlayed);
+    this.updateCombatAndDamageStats(
+      player,
+      participantStats.combat,
+      participantStats.damage,
+    );
+    this.updateVisionAndIncomeStats(
+      player,
+      participantStats.vision,
+      participantStats.income,
+    );
+  }
+
+  private updateChampionPlayCount(player: Player, championName: string): void {
+    const currentCount = player.stats.championPlayed[championName] || 0;
+    player.stats.championPlayed[championName] = currentCount + 1;
+  }
+
+  private updateCombatAndDamageStats(
+    player: Player,
+    combat: any,
+    damage: any,
+  ): void {
+    player.stats.totalKills += combat.kills || 0;
+    player.stats.totalDeaths += combat.deaths || 0;
+    player.stats.totalAssists += combat.assists || 0;
+    player.stats.totalDamageDealt += damage.totalDamageToChampions || 0;
+  }
+
+  private updateVisionAndIncomeStats(
+    player: Player,
+    vision: any,
+    income: any,
+  ): void {
+    player.stats.totalVisionScore += vision.visionScore || 0;
+    player.stats.totalGoldEarned += income.goldEarned || 0;
+    player.stats.totalMinionsKilled += income.minionsKilled || 0;
+  }
+
+  private createPlayerStat(): PlayerStat {
+    return {
+      championPlayed: {},
+      totalKills: 0,
+      totalDeaths: 0,
+      totalAssists: 0,
+      totalDamageDealt: 0,
+      totalVisionScore: 0,
+      totalGoldEarned: 0,
+      totalMinionsKilled: 0,
+    };
+  }
+
+  private getPlayerRole(rawParticipant?: any): Role {
     const rawRole =
       rawParticipant.INDIVIDUAL_POSITION ||
       rawParticipant.TEAM_POSITION ||

@@ -6,6 +6,7 @@ import { MatchService } from './match/match.service';
 import { PlayerService } from './player/player.service';
 import { TeamService } from './team/team.service';
 import { DataStoreService } from './data-store/data-store.service';
+import { StatsNormalizerService } from './match/stats-normalizer.service';
 
 @Module({
   imports: [],
@@ -17,6 +18,7 @@ import { DataStoreService } from './data-store/data-store.service';
     PlayerService,
     TeamService,
     DataStoreService,
+    StatsNormalizerService,
   ],
 })
 export class AppModule {}

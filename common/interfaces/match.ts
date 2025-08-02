@@ -12,8 +12,8 @@ export interface Match {
   playerIds: string[];
   teamIds: number[];
   duration: number;
-  raw: RawMatchData;
-  stats: Record<string, ParticipantStats>;
+  raw?: RawMatchData;
+  stats: Record<string, PlayerMatchData>;
 }
 
 export interface RawMatchData {
@@ -32,6 +32,7 @@ export interface Player {
   teamId?: number;
   matchIds: string[];
   role: Role;
+  stats: PlayerStat;
 }
 
 export interface Team {
@@ -41,7 +42,19 @@ export interface Team {
   matchIds: string[];
 }
 
-export interface ParticipantStats {
+export interface PlayerStat {
+  championPlayed: Record<string, number>;
+  totalKills: number;
+  totalDeaths: number;
+  totalAssists: number;
+  totalDamageDealt: number;
+  totalVisionScore: number;
+  totalGoldEarned: number;
+  totalMinionsKilled: number;
+}
+
+export interface PlayerMatchData {
+  championPlayed: string;
   combat: {
     kills: number;
     deaths: number;

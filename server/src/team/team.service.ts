@@ -21,6 +21,11 @@ export class TeamService implements OnModuleInit {
     await this.loadTeamsFromConfig();
   }
 
+  async reloadTeamsFromConfig(): Promise<void> {
+    console.log('Reloading teams from configuration...');
+    await this.loadTeamsFromConfig();
+  }
+
   private async loadTeamsFromConfig(): Promise<void> {
     try {
       const teamsFilePath = path.join(process.cwd(), 'src', 'teams.json');
@@ -81,7 +86,6 @@ export class TeamService implements OnModuleInit {
             const player = this.dataStore.getPlayer(playerId);
             console.log(
               `Assigned player ${playerName} (${playerId}) to team ${team.name}`,
-              player,
             );
             if (player) {
               player.teamId = team.id;

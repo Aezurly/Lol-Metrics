@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ParticipantStats } from '@common/interfaces/match';
+import { PlayerMatchData } from '@common/interfaces/match';
 
 @Injectable()
 export class StatsNormalizerService {
   constructor() {}
 
-  extractParticipantStats(participant: any): ParticipantStats {
+  extractParticipantStats(participant: any): PlayerMatchData {
     const toNum = (v: any): number => {
       if (v === null || v === undefined || v === '') return 0;
       const n = typeof v === 'number' ? v : parseFloat(String(v));
@@ -20,6 +20,7 @@ export class StatsNormalizerService {
     };
 
     return {
+      championPlayed: participant['SKIN'] || participant['CHAMPION'],
       combat: {
         kills: toNum(
           participant['CHAMPIONS_KILLED'] ?? participant['KILLS'] ?? 0,
