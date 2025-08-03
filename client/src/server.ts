@@ -8,6 +8,9 @@ import express from 'express';
 import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+const NESTJS_PORT = 3000;
+const DEFAULT_PORT = 4000;
+const INTERNAL_SERVER_ERROR = 500;
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
@@ -25,6 +28,42 @@ const angularApp = new AngularNodeAppEngine();
  */
 
 /**
+ * Proxy API requests to NestJS server
+ */
+app.use('/api', (req, res) => {
+  const nestjsUrl = `http://localhost:${NESTJS_PORT}${req.url}`;
+
+  // Forward the request to NestJS server
+  fetch(nestjsUrl, {
+    method: req.method,
+    headers: req.headers as Record<string, string>,
+    body:
+      req.method !== 'GET' && req.method !== 'HEAD'
+        ? JSON.stringify(req.body)
+        : undefined,
+  })
+    .then(async (response) => {
+      // Set response headers
+      response.headers.forEach((value, key) => {
+        res.setHeader(key, value);
+      });
+
+      // Set status code
+      res.status(response.status);
+
+      // Send response body
+      const body = await response.text();
+      res.send(body);
+    })
+    .catch((error) => {
+      console.error('Proxy error:', error);
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .json({ error: 'Internal server error' });
+    });
+});
+
+/**
  * Serve static files from /browser
  */
 app.use(
@@ -32,7 +71,7 @@ app.use(
     maxAge: '1y',
     index: false,
     redirect: false,
-  }),
+  })
 );
 
 /**
@@ -42,7 +81,7 @@ app.use((req, res, next) => {
   angularApp
     .handle(req)
     .then((response) =>
-      response ? writeResponseToNodeResponse(response, res) : next(),
+      response ? writeResponseToNodeResponse(response, res) : next()
     )
     .catch(next);
 });
@@ -52,7 +91,7 @@ app.use((req, res, next) => {
  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
 if (isMainModule(import.meta.url)) {
-  const port = process.env['PORT'] || 4000;
+  const port = process.env['PORT'] || DEFAULT_PORT;
   app.listen(port, (error) => {
     if (error) {
       throw error;
