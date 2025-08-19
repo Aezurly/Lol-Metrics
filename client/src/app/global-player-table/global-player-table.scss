@@ -68,7 +68,21 @@ table {
   }
 
   /* Handle hover states for sticky column */
-  tbody tr:hover .sticky-col {
-    background: var(--color-secondary, oklch(var(--b3) / 1));
+  tbody tr:hover {
+    background: color-mix(
+      in srgb,
+      var(--color-secondary, oklch(var(--s) / 1)) 30%,
+      transparent
+    );
+
+    .sticky-col {
+      background: color-mix(
+        in srgb,
+        var(--color-secondary, oklch(var(--s) / 1)) 60%,
+        transparent
+      );
+
+      backdrop-filter: blur(12px);
+    }
   }
 }

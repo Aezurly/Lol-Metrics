@@ -1,30 +1,109 @@
 <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold">Player Statistics</h2>
         <button class="btn btn-primary" [class.btn-disabled]="loading" (click)="reloadData()" [disabled]="loading">
-            <span *ngIf="loading" class="loading loading-spinner loading-sm"></span>
+            @if (loading) {
+            <span class="loading loading-spinner loading-sm"></span>
+            }
             {{ loading ? 'Loading...' : 'Reload Data' }}
         </button>
     </div>
 
-    <div *ngIf="error" class="alert alert-error mb-6">
+    @if(!loading && !error) {
+    <div class="flex flex-wrap gap-4 m-2 items-center">
+        <details class="dropdown">
+            <summary class="btn btn-outline m-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                Role: {{ selectedRole || 'All' }}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </summary>
+            <ul class="menu dropdown-content bg-base-100 rounded-box z-1 w-40 p-2 shadow-sm">
+                <li><a (click)="filterByRole(null)" [class.active]="selectedRole === null">All Roles</a></li>
+                <li><a (click)="filterByRole('TOP')" [class.active]="selectedRole === 'TOP'">
+                        <div class="badge badge-warning badge-sm mr-2">TOP</div>Top
+                    </a></li>
+                <li><a (click)="filterByRole('JGL')" [class.active]="selectedRole === 'JGL'">
+                        <div class="badge badge-primary badge-sm mr-2">JGL</div>Jungle
+                    </a></li>
+                <li><a (click)="filterByRole('MID')" [class.active]="selectedRole === 'MID'">
+                        <div class="badge badge-info badge-sm mr-2">MID</div>Mid
+                    </a></li>
+                <li><a (click)="filterByRole('ADC')" [class.active]="selectedRole === 'ADC'">
+                        <div class="badge badge-error badge-sm mr-2">ADC</div>ADC
+                    </a></li>
+                <li><a (click)="filterByRole('SUP')" [class.active]="selectedRole === 'SUP'">
+                        <div class="badge badge-secondary badge-sm mr-2">SUP</div>Support
+                    </a></li>
+            </ul>
+        </details>
+
+        <details class="dropdown">
+            <summary class="btn btn-outline m-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Team: {{ getSelectedTeamName() }}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </summary>
+            <ul class="menu dropdown-content bg-base-100 rounded-box z-1 w-40 p-2 shadow-sm overflow-y-auto">
+                <li><a (click)="filterByTeam(null)" [class.active]="selectedTeamId === null">All Teams</a></li>
+                @for (team of getAvailableTeams(); track team.id) {
+                <li>
+                    <a (click)="filterByTeam(team.id)" [class.active]="selectedTeamId === team.id">
+                        {{ team.name }}
+                    </a>
+                </li>
+                }
+            </ul>
+        </details>
+
+        <button class="btn btn-ghost btn-sm" (click)="clearAllFilters()">
+            @if (hasActiveFilters()) {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Clear Filters
+            }
+        </button>
+    </div>
+    }
+
+    @if (error) {
+    <div class="alert alert-error mb-6">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span>{{ error }}</span>
     </div>
+    }
 
-    <div *ngIf="loading && !error" class="text-center py-20">
+    @if (loading && !error) {
+    <div class="text-center py-20">
         <span class="loading loading-spinner loading-lg text-primary"></span>
         <p class="text-lg mt-4">Loading player data...</p>
     </div>
+    }
 
-    <div class="table-container" *ngIf="!loading && !error">
+    @if (!loading && !error) {
+    <div class="table-container">
         <table class="table table-zebra sticky-table">
             <thead>
                 <tr>
-                    <th class="cursor-pointer hover:bg-base-200 select-none sticky-col" (click)="sortBy('name')"
+                    <th class="cursor-pointer select-none sticky-col" (click)="sortBy('name')"
                         [class.text-primary]="isSorted('name')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
                             <span>Player</span>
@@ -357,7 +436,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let player of players">
+                @for (player of players; track player.name) {
+                <tr>
                     <td class="font-medium sticky-col">{{ player.name }}</td>
                     <td>
                         <div class="badge" [ngClass]="getRoleBadgeClass(player.role)">{{ player.role }}</div>
@@ -380,13 +460,17 @@
                     <td class="text-center">{{ getDamagePerGold(player) }}</td>
                     <td class="text-center">{{ getMostPlayedChampion(player) }}</td>
                 </tr>
+                }
             </tbody>
         </table>
     </div>
+    }
 
-    <div *ngIf="!loading && !error && players.length === 0" class="text-center py-20">
+    @if (!loading && !error && players.length === 0) {
+    <div class="text-center py-20">
         <div class="text-base-content">
             <p class="text-lg">No player data available. Try reloading the data.</p>
         </div>
     </div>
+    }
 </div>

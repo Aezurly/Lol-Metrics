@@ -14,11 +14,15 @@ import { Player } from '@common/interfaces/match';
 export class GlobalPlayerTable implements OnInit {
   players: Player[] = [];
   originalPlayers: Player[] = [];
+  filteredPlayers: Player[] = [];
   loading = true;
   error: string | null = null;
 
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | null = null;
+
+  selectedRole: string | null = null;
+  selectedTeamId: number | null = null;
 
   constructor(
     private readonly communication: CommunicationService,
@@ -39,7 +43,8 @@ export class GlobalPlayerTable implements OnInit {
         this.teamsService.updateTeamMap(summary.teamList);
 
         this.originalPlayers = [...summary.playerList];
-        this.players = [...summary.playerList];
+        this.filteredPlayers = [...summary.playerList];
+        this.applyFilters();
         this.loading = false;
       },
       error: (err) => {
@@ -138,12 +143,12 @@ export class GlobalPlayerTable implements OnInit {
 
   private applySorting(): void {
     if (!this.sortColumn || !this.sortDirection) {
-      // Reset to original order
-      this.players = [...this.originalPlayers];
+      // Reset to filtered order (no sorting applied)
+      this.players = [...this.filteredPlayers];
       return;
     }
 
-    this.players.sort((a, b) => {
+    this.players = [...this.filteredPlayers].sort((a, b) => {
       const valueA = this.getSortValue(a, this.sortColumn!);
       const valueB = this.getSortValue(b, this.sortColumn!);
 
@@ -163,5 +168,69 @@ export class GlobalPlayerTable implements OnInit {
 
   protected isSorted(column: string): boolean {
     return this.sortColumn === column && this.sortDirection !== null;
+  }
+
+  // Filter methods
+  protected filterByRole(role: string | null): void {
+    console.log('filter by role :', role);
+    this.selectedRole = role;
+    this.applyFilters();
+  }
+
+  protected filterByTeam(teamId: number | null): void {
+    this.selectedTeamId = teamId;
+    this.applyFilters();
+  }
+
+  protected clearAllFilters(): void {
+    this.selectedRole = null;
+    this.selectedTeamId = null;
+    this.applyFilters();
+  }
+
+  protected hasActiveFilters(): boolean {
+    return this.selectedRole !== null || this.selectedTeamId !== null;
+  }
+
+  protected getSelectedTeamName(): string {
+    if (this.selectedTeamId === null) {
+      return 'All';
+    }
+    return this.teamsService.getTeamName(this.selectedTeamId);
+  }
+
+  protected getAvailableTeams(): Array<{ id: number; name: string }> {
+    const teams = new Set<number>();
+    this.originalPlayers.forEach((player) => {
+      if (player.teamId !== undefined) {
+        teams.add(player.teamId);
+      }
+    });
+
+    return Array.from(teams)
+      .map((teamId) => ({
+        id: teamId,
+        name: this.teamsService.getTeamName(teamId),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  private applyFilters(): void {
+    let filtered = [...this.originalPlayers];
+
+    // Apply role filter
+    if (this.selectedRole) {
+      filtered = filtered.filter((player) => player.role === this.selectedRole);
+    }
+
+    // Apply team filter
+    if (this.selectedTeamId !== null) {
+      filtered = filtered.filter(
+        (player) => player.teamId === this.selectedTeamId
+      );
+    }
+
+    this.filteredPlayers = filtered;
+    this.applySorting();
   }
 }
