@@ -16,7 +16,7 @@
     },
     {
       "id": 1,
-      "name": "OML",
+      "name": "OML EZ",
       "playersNames": [
         "gilito345",
         "Gateway3",
@@ -106,9 +106,22 @@
         "Tgas20",
         "GLOWINGCRACKIN",
         "Shenobi",
-        "syrk"
+        "syrk",
+        "Jimmy Bonzo"
       ],
       "LBLCS": false
+    },
+    {
+      "id": 9,
+      "name": "OML OG",
+      "playersNames": [
+        "Sygenysis",
+        "Unsane",
+        "Nx Angel",
+        "ThaiDie",
+        "LethalPeaches"
+      ],
+      "LBLCS": true
     }
   ]
 }
