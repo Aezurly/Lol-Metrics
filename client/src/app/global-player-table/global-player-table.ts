@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Communication } from '../services/communication/communication';
+import { CommunicationService } from '../services/communication/communication.service';
 import { Player, PlayerStat } from '@common/interfaces/match';
 
 @Component({
@@ -22,7 +22,7 @@ export class GlobalPlayerTable implements OnInit {
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | null = null;
 
-  constructor(private readonly communication: Communication) {}
+  constructor(private readonly communication: CommunicationService) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -95,16 +95,16 @@ export class GlobalPlayerTable implements OnInit {
     const percentile75 = allKDAs[percentile75Index];
 
     if (kdaValue >= percentile75) {
-      return 'text-success'; // Blue for high KDA (75th percentile and above)
+      return 'text-success';
     } else if (kdaValue <= percentile25) {
-      return 'text-error'; // Red for low KDA (25th percentile and below)
+      return 'text-error';
     }
 
-    return ''; // Default color for middle range
+    return '';
   }
 
   protected getTotalMinutesPlayed(player: Player): number {
-    return player.stats.totalTimePlayed / 1000 / 60; // Convert milliseconds to minutes
+    return player.stats.totalTimePlayed / 1000 / 60;
   }
 
   protected getCSPerMinute(player: Player): string {

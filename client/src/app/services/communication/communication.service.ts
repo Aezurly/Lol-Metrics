@@ -13,7 +13,7 @@ interface AppSummary {
 @Injectable({
   providedIn: 'root',
 })
-export class Communication {
+export class CommunicationService {
   private readonly apiUrl = '/api';
 
   constructor(private readonly http: HttpClient) {}
