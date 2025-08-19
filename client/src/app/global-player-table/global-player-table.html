@@ -112,6 +112,28 @@
                             </div>
                         </div>
                     </th>
+                    <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('winRate')"
+                        [class.text-primary]="isSorted('winRate')">
+                        <div class="flex items-center justify-between w-3/4 mx-auto">
+                            <span>Win Rate</span>
+                            <div class="ml-1 w-4 h-4">
+                                @if (sortColumn === 'winRate' && sortDirection === 'asc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                </svg>
+                                }
+                                @if (sortColumn === 'winRate' && sortDirection === 'desc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                                }
+                            </div>
+                        </div>
+                    </th>
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('kda')"
                         [class.text-primary]="isSorted('kda')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
@@ -346,6 +368,7 @@
                             }}</div>
                     </td>
                     <td class="text-center">{{ player.matchIds.length }}</td>
+                    <td class="text-center">{{ getWinRate(player) }}</td>
                     <td class="text-center font-semibold" [ngClass]="getKDAColorClass(player)">{{ getKDA(player) }}</td>
                     <td class="text-center">{{ (player.stats.totalKills / player.matchIds.length).toFixed(2) }}</td>
                     <td class="text-center">{{ (player.stats.totalDeaths / player.matchIds.length).toFixed(2) }}</td>

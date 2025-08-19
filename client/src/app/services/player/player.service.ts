@@ -144,6 +144,18 @@ export class PlayerService {
       : player.stats.totalVisionScore / totalMinutes;
   }
 
+  getWinRate(player: Player): string {
+    const totalGames = player.matchIds.length;
+    if (totalGames === 0) return '0.0%';
+    const winRate = (player.stats.wins / totalGames) * 100;
+    return winRate.toFixed(1) + '%';
+  }
+
+  getWinRateValue(player: Player): number {
+    const totalGames = player.matchIds.length;
+    return totalGames === 0 ? 0 : (player.stats.wins / totalGames) * 100;
+  }
+
   getMostPlayedChampion(player: Player): string {
     const champions = player.stats.championPlayed;
     if (Object.keys(champions).length === 0) return 'N/A';
@@ -206,6 +218,7 @@ export class PlayerService {
       damagePerGold: () => this.getDamagePerGoldValue(player),
       killParticipation: () => this.getKillParticipationValue(player),
       visionPerMin: () => this.getVisionScorePerMinuteValue(player),
+      winRate: () => this.getWinRateValue(player),
       mostPlayedChampion: () => this.getMostPlayedChampionName(player),
     };
 

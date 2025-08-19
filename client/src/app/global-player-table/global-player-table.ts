@@ -103,6 +103,10 @@ export class GlobalPlayerTable implements OnInit {
     return this.playerService.getVisionScorePerMinute(player);
   }
 
+  protected getWinRate(player: Player): string {
+    return this.playerService.getWinRate(player);
+  }
+
   protected getMostPlayedChampion(player: Player): string {
     return this.playerService.getMostPlayedChampion(player);
   }
