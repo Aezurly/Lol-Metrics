@@ -32,10 +32,15 @@ export class MatchService {
       id: matchId,
       playerIds: this.getPlayerIds(raw),
       teamIds: [],
+      victoriousTeam: 0,
       duration: raw.gameDuration || 0,
       raw: raw,
       stats: this.getParticipantStats(raw),
     };
+    const winningPlayer = Object.values(match.stats).find(
+      (player) => player.win,
+    );
+    match.victoriousTeam = winningPlayer ? winningPlayer.teamNumber : 0; // 0 si erreur, 1 pour 100, 2 pour 200
     return match;
   }
 

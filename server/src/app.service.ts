@@ -52,6 +52,7 @@ export class AppService implements OnModuleInit {
 
     return {
       matchIds: this.dataStore.getMatchIds(),
+      matchs: this.dataStore.matches,
       playerList: this.dataStore.getPlayerList(),
       teamList: this.dataStore.getTeamList(),
     };

@@ -1,7 +1,8 @@
-import { Player, Team } from '@common/interfaces/match';
+import { Player, Team, Match } from '@common/interfaces/match';
 
 export interface AppSummary {
   matchIds: string[];
+  matchs: Record<string, Match>;
   playerList: Player[];
   teamList: Team[];
 }

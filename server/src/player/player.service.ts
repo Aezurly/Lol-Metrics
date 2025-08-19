@@ -64,6 +64,7 @@ export class PlayerService {
       participantStats.income,
     );
     this.updateGlobalStats(player, match, participantStats.teamNumber);
+    player.stats.wins += participantStats.win ? 1 : 0;
   }
 
   private updateGlobalStats(
@@ -82,7 +83,6 @@ export class PlayerService {
     }, 0);
 
     player.stats.totalTeamKills += totalTeamKills;
-    console;
   }
 
   private updateChampionPlayCount(player: Player, championName: string): void {
@@ -115,6 +115,7 @@ export class PlayerService {
   private createPlayerStat(): PlayerStat {
     return {
       championPlayed: {},
+      wins: 0,
       totalKills: 0,
       totalDeaths: 0,
       totalAssists: 0,

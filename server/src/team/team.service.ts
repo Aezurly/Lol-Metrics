@@ -57,6 +57,9 @@ export class TeamService implements OnModuleInit {
       );
 
       if (teamPlayersInMatch.length > 0 && !team.matchIds.includes(match.id)) {
+        if (!match.teamIds.includes(team.id)) {
+          match.teamIds.push(team.id);
+        }
         team.matchIds.push(match.id);
         this.dataStore.setTeam(team.id, team);
         console.log(`Added match ${match.id} to team ${team.name}`);
