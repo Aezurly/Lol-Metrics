@@ -2,3 +2,7 @@
 @plugin "daisyui" {
   themes: cupcake --default, dark --prefersdark;
 }
+
+html {
+  font-family: "Roboto", sans-serif;
+}

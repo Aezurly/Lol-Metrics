@@ -10,9 +10,18 @@ import { Player, PlayerStat } from '@common/interfaces/match';
   styleUrl: './global-player-table.scss',
 })
 export class GlobalPlayerTable implements OnInit {
+  private static readonly PERFECT_KDA_VALUE = 99;
+  private static readonly PERCENTILE_25 = 0.25;
+  private static readonly PERCENTILE_75 = 0.75;
+
   players: Player[] = [];
+  originalPlayers: Player[] = [];
   loading = true;
   error: string | null = null;
+
+  // Sorting state
+  sortColumn: string | null = null;
+  sortDirection: 'asc' | 'desc' | null = null;
 
   constructor(private readonly communication: Communication) {}
 
@@ -26,7 +35,8 @@ export class GlobalPlayerTable implements OnInit {
 
     this.communication.getSummary().subscribe({
       next: (summary) => {
-        this.players = summary.playerList;
+        this.originalPlayers = [...summary.playerList];
+        this.players = [...summary.playerList];
         this.loading = false;
       },
       error: (err) => {
@@ -62,7 +72,7 @@ export class GlobalPlayerTable implements OnInit {
   protected getKDAValue(player: Player): number {
     const stats: PlayerStat = player.stats;
     if (stats.totalDeaths === 0) {
-      return 99; // High value for perfect KDA
+      return GlobalPlayerTable.PERFECT_KDA_VALUE; // High value for perfect KDA
     }
     return (stats.totalKills + stats.totalAssists) / stats.totalDeaths;
   }
@@ -75,8 +85,12 @@ export class GlobalPlayerTable implements OnInit {
 
     if (allKDAs.length === 0) return '';
 
-    const percentile25Index = Math.floor(allKDAs.length * 0.25);
-    const percentile75Index = Math.floor(allKDAs.length * 0.75);
+    const percentile25Index = Math.floor(
+      allKDAs.length * GlobalPlayerTable.PERCENTILE_25
+    );
+    const percentile75Index = Math.floor(
+      allKDAs.length * GlobalPlayerTable.PERCENTILE_75
+    );
 
     const percentile25 = allKDAs[percentile25Index];
     const percentile75 = allKDAs[percentile75Index];
@@ -101,5 +115,69 @@ export class GlobalPlayerTable implements OnInit {
 
     const normalizedRole = role.toUpperCase();
     return roleMap[normalizedRole] || 'badge-neutral';
+  }
+
+  protected sortBy(column: string): void {
+    if (this.sortColumn === column) {
+      // Cycle through: asc -> desc -> null (reset)
+      if (this.sortDirection === 'asc') {
+        this.sortDirection = 'desc';
+      } else if (this.sortDirection === 'desc') {
+        this.sortDirection = null;
+        this.sortColumn = null;
+      }
+    } else {
+      // New column, start with ascending
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    this.applySorting();
+  }
+
+  private applySorting(): void {
+    if (!this.sortColumn || !this.sortDirection) {
+      // Reset to original order
+      this.players = [...this.originalPlayers];
+      return;
+    }
+
+    this.players.sort((a, b) => {
+      const valueA = this.getSortValue(a, this.sortColumn!);
+      const valueB = this.getSortValue(b, this.sortColumn!);
+
+      if (valueA < valueB) {
+        return this.sortDirection === 'asc' ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return this.sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  private getSortValue(player: Player, column: string): number | string {
+    switch (column) {
+      case 'name':
+        return player.name.toLowerCase();
+      case 'role':
+        return player.role.toLowerCase();
+      case 'teamId':
+        return player.teamId ?? -1;
+      case 'matches':
+        return player.matchIds.length;
+      case 'kda':
+        return this.getKDAValue(player);
+      case 'kills':
+        return player.stats.totalKills / player.matchIds.length;
+      case 'deaths':
+        return player.stats.totalDeaths / player.matchIds.length;
+      default:
+        return 0;
+    }
+  }
+
+  protected isSorted(column: string): boolean {
+    return this.sortColumn === column && this.sortDirection !== null;
   }
 }

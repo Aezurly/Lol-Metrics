@@ -1,6 +1,6 @@
 <div class="p-6">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-bold">League of Legends Player Statistics</h2>
+        <h2 class="text-2xl font-bold">Player Statistics</h2>
         <button class="btn btn-primary" [class.btn-disabled]="loading" (click)="reloadData()" [disabled]="loading">
             <span *ngIf="loading" class="loading loading-spinner loading-sm"></span>
             {{ loading ? 'Loading...' : 'Reload Data' }}
@@ -24,13 +24,160 @@
         <table class="table table-zebra">
             <thead>
                 <tr>
-                    <th>Player Name</th>
-                    <th>Role</th>
-                    <th>Team ID</th>
-                    <th>Matches Played</th>
-                    <th>Average KDA</th>
-                    <th>Kills/Game</th>
-                    <th>Deaths/Game</th>
+                    <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('name')"
+                        [class.text-primary]="isSorted('name')">
+                        <div class="flex items-center justify-between w-1/2 mx-auto">
+                            <span>Player Name</span>
+                            <div class="ml-2 w-4 h-4">
+                                @if (sortColumn === 'name' && sortDirection === 'asc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                </svg>
+                                }
+                                @if (sortColumn === 'name' && sortDirection === 'desc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                                }
+                            </div>
+                        </div>
+                    </th>
+                    <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('role')"
+                        [class.text-primary]="isSorted('role')">
+                        <div class="flex items-center justify-between w-1/2 mx-auto">
+                            <span>Role</span>
+                            <div class="ml-2 w-4 h-4">
+                                @if (sortColumn === 'role' && sortDirection === 'asc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                </svg>
+                                }
+                                @if (sortColumn === 'role' && sortDirection === 'desc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                                }
+                            </div>
+                        </div>
+                    </th>
+                    <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('teamId')"
+                        [class.text-primary]="isSorted('teamId')">
+                        <div class="flex items-center justify-between w-1/2 mx-auto">
+                            <span>Team ID</span>
+                            <div class="ml-2 w-4 h-4">
+                                @if (sortColumn === 'teamId' && sortDirection === 'asc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                </svg>
+                                }
+                                @if (sortColumn === 'teamId' && sortDirection === 'desc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                                }
+                            </div>
+                        </div>
+                    </th>
+                    <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('matches')"
+                        [class.text-primary]="isSorted('matches')">
+                        <div class="flex items-center justify-between w-1/2 mx-auto">
+                            <span>Matches Played</span>
+                            <div class="ml-2 w-4 h-4">
+                                @if (sortColumn === 'matches' && sortDirection === 'asc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                </svg>
+                                }
+                                @if (sortColumn === 'matches' && sortDirection === 'desc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                                }
+                            </div>
+                        </div>
+                    </th>
+                    <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('kda')"
+                        [class.text-primary]="isSorted('kda')">
+                        <div class="flex items-center justify-between w-1/2 mx-auto">
+                            <span>Average KDA</span>
+                            <div class="ml-2 w-4 h-4">
+                                @if (sortColumn === 'kda' && sortDirection === 'asc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                </svg>
+                                }
+                                @if (sortColumn === 'kda' && sortDirection === 'desc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                                }
+                            </div>
+                        </div>
+                    </th>
+                    <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('kills')"
+                        [class.text-primary]="isSorted('kills')">
+                        <div class="flex items-center justify-between w-1/2 mx-auto">
+                            <span>Kills/Game</span>
+                            <div class="ml-2 w-4 h-4">
+                                @if (sortColumn === 'kills' && sortDirection === 'asc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                </svg>
+                                }
+                                @if (sortColumn === 'kills' && sortDirection === 'desc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                                }
+                            </div>
+                        </div>
+                    </th>
+                    <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('deaths')"
+                        [class.text-primary]="isSorted('deaths')">
+                        <div class="flex items-center justify-between w-1/2 mx-auto">
+                            <span>Deaths/Game</span>
+                            <div class="ml-2 w-4 h-4">
+                                @if (sortColumn === 'deaths' && sortDirection === 'asc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                </svg>
+                                }
+                                @if (sortColumn === 'deaths' && sortDirection === 'desc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                                }
+                            </div>
+                        </div>
+                    </th>
                 </tr>
             </thead>
             <tbody>

@@ -1,1 +1,20 @@
 /* Minimal styles - using only DaisyUI components */
+
+th.cursor-pointer {
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--fallback-b2, oklch(var(--b2) / 1));
+  }
+
+  &.text-primary {
+    font-weight: 600;
+  }
+}
+
+table {
+  th,
+  td {
+    text-align: center;
+  }
+}
