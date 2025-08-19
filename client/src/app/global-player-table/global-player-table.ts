@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommunicationService } from '../services/communication/communication.service';
-import { Player, PlayerStat } from '@common/interfaces/match';
+import { PlayerService } from '../services/player/player.service';
+import { Player } from '@common/interfaces/match';
 
 @Component({
   selector: 'app-global-player-table',
@@ -10,10 +11,6 @@ import { Player, PlayerStat } from '@common/interfaces/match';
   styleUrl: './global-player-table.scss',
 })
 export class GlobalPlayerTable implements OnInit {
-  private static readonly PERFECT_KDA_VALUE = Infinity;
-  private static readonly PERCENTILE_25 = 0.25;
-  private static readonly PERCENTILE_75 = 0.75;
-
   players: Player[] = [];
   originalPlayers: Player[] = [];
   loading = true;
@@ -22,7 +19,10 @@ export class GlobalPlayerTable implements OnInit {
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | null = null;
 
-  constructor(private readonly communication: CommunicationService) {}
+  constructor(
+    private readonly communication: CommunicationService,
+    private readonly playerService: PlayerService
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -60,125 +60,51 @@ export class GlobalPlayerTable implements OnInit {
   }
 
   protected getKDA(player: Player): string {
-    const stats: PlayerStat = player.stats;
-    if (stats.totalDeaths === 0) {
-      return 'Perfect KDA';
-    }
-    const kda = (stats.totalKills + stats.totalAssists) / stats.totalDeaths;
-    return kda.toFixed(2);
+    return this.playerService.getKDA(player);
   }
 
   protected getKDAValue(player: Player): number {
-    const stats: PlayerStat = player.stats;
-    if (stats.totalDeaths === 0) {
-      return GlobalPlayerTable.PERFECT_KDA_VALUE;
-    }
-    return (stats.totalKills + stats.totalAssists) / stats.totalDeaths;
+    return this.playerService.getKDAValue(player);
   }
 
   protected getKDAColorClass(player: Player): string {
-    const kdaValue = this.getKDAValue(player);
-    const allKDAs = this.players
-      .map((p) => this.getKDAValue(p))
-      .sort((a, b) => a - b);
-
-    if (allKDAs.length === 0) return '';
-
-    const percentile25Index = Math.floor(
-      allKDAs.length * GlobalPlayerTable.PERCENTILE_25
-    );
-    const percentile75Index = Math.floor(
-      allKDAs.length * GlobalPlayerTable.PERCENTILE_75
-    );
-
-    const percentile25 = allKDAs[percentile25Index];
-    const percentile75 = allKDAs[percentile75Index];
-
-    if (kdaValue >= percentile75) {
-      return 'text-success';
-    } else if (kdaValue <= percentile25) {
-      return 'text-error';
-    }
-
-    return '';
+    return this.playerService.getKDAColorClass(player, this.players);
   }
 
   protected getTotalMinutesPlayed(player: Player): number {
-    return player.stats.totalTimePlayed / 1000 / 60;
+    return this.playerService.getTotalMinutesPlayed(player);
   }
 
   protected getCSPerMinute(player: Player): string {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    if (totalMinutes === 0) return '0.00';
-    const csPerMin = player.stats.totalMinionsKilled / totalMinutes;
-    return csPerMin.toFixed(2);
+    return this.playerService.getCSPerMinute(player);
   }
 
   protected getDamagePerMinute(player: Player): string {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    if (totalMinutes === 0) return '0.00';
-    const damagePerMin = player.stats.totalDamageDealt / totalMinutes;
-    return damagePerMin.toFixed(0);
+    return this.playerService.getDamagePerMinute(player);
   }
 
   protected getGoldPerMinute(player: Player): string {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    if (totalMinutes === 0) return '0.00';
-    const goldPerMin = player.stats.totalGoldEarned / totalMinutes;
-    return goldPerMin.toFixed(0);
+    return this.playerService.getGoldPerMinute(player);
   }
 
   protected getDamagePerGold(player: Player): string {
-    if (player.stats.totalGoldEarned === 0) return '0.00';
-    const damagePerGold =
-      player.stats.totalDamageDealt / player.stats.totalGoldEarned;
-    return damagePerGold.toFixed(2);
+    return this.playerService.getDamagePerGold(player);
   }
 
   protected getKillParticipation(player: Player): string {
-    if (player.stats.totalTeamKills === 0) return '0.00%';
-    const participation =
-      ((player.stats.totalKills + player.stats.totalAssists) /
-        player.stats.totalTeamKills) *
-      100;
-    return participation.toFixed(1) + '%';
+    return this.playerService.getKillParticipation(player);
   }
 
   protected getVisionScorePerMinute(player: Player): string {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    if (totalMinutes === 0) return '0.00';
-    const visionPerMin = player.stats.totalVisionScore / totalMinutes;
-    return visionPerMin.toFixed(2);
+    return this.playerService.getVisionScorePerMinute(player);
   }
 
   protected getMostPlayedChampion(player: Player): string {
-    const champions = player.stats.championPlayed;
-    if (Object.keys(champions).length === 0) return 'N/A';
-
-    let mostPlayed = '';
-    let maxGames = 0;
-
-    for (const [champion, games] of Object.entries(champions)) {
-      if (games > maxGames) {
-        maxGames = games;
-        mostPlayed = champion;
-      }
-    }
-
-    return `${mostPlayed} (${maxGames})`;
+    return this.playerService.getMostPlayedChampion(player);
   }
 
   protected getRoleBadgeClass(role: string): string {
-    const roleMap: { [key: string]: string } = {
-      TOP: 'badge-warning',
-      JGL: 'badge-primary',
-      MID: 'badge-info',
-      ADC: 'badge-error',
-      SUP: 'badge-secondary',
-    };
-
-    const normalizedRole = role.toUpperCase();
-    return roleMap[normalizedRole] || 'badge-neutral';
+    return this.playerService.getRoleBadgeClass(role);
   }
 
   protected sortBy(column: string): void {
@@ -191,7 +117,6 @@ export class GlobalPlayerTable implements OnInit {
         this.sortColumn = null;
       }
     } else {
-      // New column, start with ascending
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
@@ -221,95 +146,7 @@ export class GlobalPlayerTable implements OnInit {
   }
 
   private getSortValue(player: Player, column: string): number | string {
-    switch (column) {
-      case 'name':
-        return player.name.toLowerCase();
-      case 'role':
-        return player.role.toLowerCase();
-      case 'teamId':
-        return player.teamId ?? -1;
-      case 'matches':
-        return player.matchIds.length;
-      case 'kda':
-        return this.getKDAValue(player);
-      case 'kills':
-        return player.stats.totalKills / player.matchIds.length;
-      case 'deaths':
-        return player.stats.totalDeaths / player.matchIds.length;
-      case 'csPerMin':
-        return this.getCSPerMinuteValue(player);
-      case 'damagePerMin':
-        return this.getDamagePerMinuteValue(player);
-      case 'goldPerMin':
-        return this.getGoldPerMinuteValue(player);
-      case 'damagePerGold':
-        return this.getDamagePerGoldValue(player);
-      case 'killParticipation':
-        return this.getKillParticipationValue(player);
-      case 'visionPerMin':
-        return this.getVisionScorePerMinuteValue(player);
-      case 'mostPlayedChampion':
-        return this.getMostPlayedChampionName(player);
-      default:
-        return 0;
-    }
-  }
-
-  private getCSPerMinuteValue(player: Player): number {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    return totalMinutes === 0
-      ? 0
-      : player.stats.totalMinionsKilled / totalMinutes;
-  }
-
-  private getDamagePerMinuteValue(player: Player): number {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    return totalMinutes === 0
-      ? 0
-      : player.stats.totalDamageDealt / totalMinutes;
-  }
-
-  private getGoldPerMinuteValue(player: Player): number {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    return totalMinutes === 0 ? 0 : player.stats.totalGoldEarned / totalMinutes;
-  }
-
-  private getDamagePerGoldValue(player: Player): number {
-    return player.stats.totalGoldEarned === 0
-      ? 0
-      : player.stats.totalDamageDealt / player.stats.totalGoldEarned;
-  }
-
-  private getKillParticipationValue(player: Player): number {
-    return player.stats.totalTeamKills === 0
-      ? 0
-      : ((player.stats.totalKills + player.stats.totalAssists) /
-          player.stats.totalTeamKills) *
-          100;
-  }
-
-  private getVisionScorePerMinuteValue(player: Player): number {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    return totalMinutes === 0
-      ? 0
-      : player.stats.totalVisionScore / totalMinutes;
-  }
-
-  private getMostPlayedChampionName(player: Player): string {
-    const champions = player.stats.championPlayed;
-    if (Object.keys(champions).length === 0) return '';
-
-    let mostPlayed = '';
-    let maxGames = 0;
-
-    for (const [champion, games] of Object.entries(champions)) {
-      if (games > maxGames) {
-        maxGames = games;
-        mostPlayed = champion;
-      }
-    }
-
-    return mostPlayed.toLowerCase();
+    return this.playerService.getSortValue(player, column);
   }
 
   protected isSorted(column: string): boolean {
