@@ -27,7 +27,7 @@
                     <th class="cursor-pointer hover:bg-base-200 select-none sticky-col" (click)="sortBy('name')"
                         [class.text-primary]="isSorted('name')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Player Name</span>
+                            <span>Player</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'name' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -71,7 +71,7 @@
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('teamId')"
                         [class.text-primary]="isSorted('teamId')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Team ID</span>
+                            <span class="w-26">Team Names</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'teamId' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -93,7 +93,7 @@
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('matches')"
                         [class.text-primary]="isSorted('matches')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Matches Played</span>
+                            <span>Games</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'matches' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -115,7 +115,7 @@
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('kda')"
                         [class.text-primary]="isSorted('kda')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Average KDA</span>
+                            <span>Avg KDA</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'kda' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -137,7 +137,7 @@
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('kills')"
                         [class.text-primary]="isSorted('kills')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Kills/Game</span>
+                            <span>Avg Kills</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'kills' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -159,7 +159,7 @@
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('deaths')"
                         [class.text-primary]="isSorted('deaths')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Deaths/Game</span>
+                            <span>Avg Deaths</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'deaths' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -181,7 +181,7 @@
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('csPerMin')"
                         [class.text-primary]="isSorted('csPerMin')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>CS/Min</span>
+                            <span>CS/M</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'csPerMin' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -203,7 +203,7 @@
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('damagePerMin')"
                         [class.text-primary]="isSorted('damagePerMin')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Damage/Min</span>
+                            <span>DPM</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'damagePerMin' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -225,7 +225,7 @@
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('goldPerMin')"
                         [class.text-primary]="isSorted('goldPerMin')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Gold/Min</span>
+                            <span>GPM</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'goldPerMin' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -244,32 +244,10 @@
                             </div>
                         </div>
                     </th>
-                    <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('damagePerGold')"
-                        [class.text-primary]="isSorted('damagePerGold')">
-                        <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Damage/Gold</span>
-                            <div class="ml-1 w-4 h-4">
-                                @if (sortColumn === 'damagePerGold' && sortDirection === 'asc') {
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                    stroke="currentColor" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-                                </svg>
-                                }
-                                @if (sortColumn === 'damagePerGold' && sortDirection === 'desc') {
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                    stroke="currentColor" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                                </svg>
-                                }
-                            </div>
-                        </div>
-                    </th>
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('killParticipation')"
                         [class.text-primary]="isSorted('killParticipation')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Kill Participation</span>
+                            <span>KP</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'killParticipation' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -291,7 +269,7 @@
                     <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('visionPerMin')"
                         [class.text-primary]="isSorted('visionPerMin')">
                         <div class="flex items-center justify-between w-3/4 mx-auto">
-                            <span>Vision/Min</span>
+                            <span>VSPM</span>
                             <div class="ml-1 w-4 h-4">
                                 @if (sortColumn === 'visionPerMin' && sortDirection === 'asc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -301,6 +279,28 @@
                                 </svg>
                                 }
                                 @if (sortColumn === 'visionPerMin' && sortDirection === 'desc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                                }
+                            </div>
+                        </div>
+                    </th>
+                    <th class="cursor-pointer hover:bg-base-200 select-none" (click)="sortBy('damagePerGold')"
+                        [class.text-primary]="isSorted('damagePerGold')">
+                        <div class="flex items-center justify-between w-3/4 mx-auto">
+                            <span>Dmg/Gold</span>
+                            <div class="ml-1 w-4 h-4">
+                                @if (sortColumn === 'damagePerGold' && sortDirection === 'asc') {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                </svg>
+                                }
+                                @if (sortColumn === 'damagePerGold' && sortDirection === 'desc') {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                                     stroke="currentColor" class="w-4 h-4">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -341,7 +341,9 @@
                         <div class="badge" [ngClass]="getRoleBadgeClass(player.role)">{{ player.role }}</div>
                     </td>
                     <td>
-                        <div class="badge badge-outline">{{ player.teamId }}</div>
+                        <div class="badge h-min" [ngClass]="player.teamId ? 'badge-outline' : 'badge-neutral'">{{
+                            getTeamName(player)
+                            }}</div>
                     </td>
                     <td class="text-center">{{ player.matchIds.length }}</td>
                     <td class="text-center font-semibold" [ngClass]="getKDAColorClass(player)">{{ getKDA(player) }}</td>
@@ -350,9 +352,9 @@
                     <td class="text-center">{{ getCSPerMinute(player) }}</td>
                     <td class="text-center">{{ getDamagePerMinute(player) }}</td>
                     <td class="text-center">{{ getGoldPerMinute(player) }}</td>
-                    <td class="text-center">{{ getDamagePerGold(player) }}</td>
                     <td class="text-center">{{ getKillParticipation(player) }}</td>
                     <td class="text-center">{{ getVisionScorePerMinute(player) }}</td>
+                    <td class="text-center">{{ getDamagePerGold(player) }}</td>
                     <td class="text-center">{{ getMostPlayedChampion(player) }}</td>
                 </tr>
             </tbody>

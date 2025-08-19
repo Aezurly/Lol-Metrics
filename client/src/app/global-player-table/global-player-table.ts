@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommunicationService } from '../services/communication/communication.service';
 import { PlayerService } from '../services/player/player.service';
+import { TeamsService } from '../services/teams/teams.service';
 import { Player } from '@common/interfaces/match';
 
 @Component({
@@ -21,7 +22,8 @@ export class GlobalPlayerTable implements OnInit {
 
   constructor(
     private readonly communication: CommunicationService,
-    private readonly playerService: PlayerService
+    private readonly playerService: PlayerService,
+    private readonly teamsService: TeamsService
   ) {}
 
   ngOnInit(): void {
@@ -34,6 +36,8 @@ export class GlobalPlayerTable implements OnInit {
 
     this.communication.getSummary().subscribe({
       next: (summary) => {
+        this.teamsService.updateTeamMap(summary.teamList);
+
         this.originalPlayers = [...summary.playerList];
         this.players = [...summary.playerList];
         this.loading = false;
@@ -105,6 +109,10 @@ export class GlobalPlayerTable implements OnInit {
 
   protected getRoleBadgeClass(role: string): string {
     return this.playerService.getRoleBadgeClass(role);
+  }
+
+  protected getTeamName(player: Player): string {
+    return this.teamsService.getTeamName(player.teamId);
   }
 
   protected sortBy(column: string): void {

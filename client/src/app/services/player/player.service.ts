@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Player, PlayerStat } from '@common/interfaces/match';
+import { TeamsService } from '../teams/teams.service';
 
 @Injectable({
   providedIn: 'root',
@@ -8,6 +9,8 @@ export class PlayerService {
   private static readonly PERFECT_KDA_VALUE = Infinity;
   private static readonly PERCENTILE_25 = 0.25;
   private static readonly PERCENTILE_75 = 0.75;
+
+  private readonly teamsService = inject(TeamsService);
 
   getKDA(player: Player): string {
     const stats: PlayerStat = player.stats;
@@ -192,7 +195,7 @@ export class PlayerService {
     const sortMethods: { [key: string]: () => number | string } = {
       name: () => player.name.toLowerCase(),
       role: () => player.role.toLowerCase(),
-      teamId: () => player.teamId ?? -1,
+      teamId: () => this.teamsService.getTeamName(player.teamId).toLowerCase(),
       matches: () => player.matchIds.length,
       kda: () => this.getKDAValue(player),
       kills: () => player.stats.totalKills / player.matchIds.length,
