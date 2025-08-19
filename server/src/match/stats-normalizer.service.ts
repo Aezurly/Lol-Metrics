@@ -20,6 +20,7 @@ export class StatsNormalizerService {
     };
 
     return {
+      teamNumber: toNum(participant['TEAM']) / 100,
       championPlayed: participant['SKIN'] || participant['CHAMPION'],
       combat: {
         kills: toNum(

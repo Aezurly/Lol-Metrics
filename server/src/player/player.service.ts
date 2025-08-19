@@ -63,6 +63,26 @@ export class PlayerService {
       participantStats.vision,
       participantStats.income,
     );
+    this.updateGlobalStats(player, match, participantStats.teamNumber);
+  }
+
+  private updateGlobalStats(
+    player: Player,
+    match: Match,
+    teamNumber: number,
+  ): void {
+    player.stats.totalTimePlayed += match.duration;
+    const teamPlayersInMatch: string[] = Object.entries(match.stats)
+      .filter(([_, p]) => p.teamNumber === teamNumber)
+      .map(([playerId, _]) => playerId);
+
+    const totalTeamKills = teamPlayersInMatch.reduce((totalKills, playerId) => {
+      const playerStats = match.stats[playerId];
+      return totalKills + (playerStats?.combat.kills || 0);
+    }, 0);
+
+    player.stats.totalTeamKills += totalTeamKills;
+    console;
   }
 
   private updateChampionPlayCount(player: Player, championName: string): void {
@@ -88,7 +108,8 @@ export class PlayerService {
   ): void {
     player.stats.totalVisionScore += vision.visionScore || 0;
     player.stats.totalGoldEarned += income.goldEarned || 0;
-    player.stats.totalMinionsKilled += income.minionsKilled || 0;
+    player.stats.totalMinionsKilled +=
+      income.totalMinionsKilled + income.neutralMinionsKilled || 0;
   }
 
   private createPlayerStat(): PlayerStat {
@@ -101,6 +122,8 @@ export class PlayerService {
       totalVisionScore: 0,
       totalGoldEarned: 0,
       totalMinionsKilled: 0,
+      totalTimePlayed: 0,
+      totalTeamKills: 0,
     };
   }
 

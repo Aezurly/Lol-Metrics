@@ -51,9 +51,12 @@ export interface PlayerStat {
   totalVisionScore: number;
   totalGoldEarned: number;
   totalMinionsKilled: number;
+  totalTimePlayed: number;
+  totalTeamKills: number;
 }
 
 export interface PlayerMatchData {
+  teamNumber: number;
   championPlayed: string;
   combat: {
     kills: number;
