@@ -11,7 +11,8 @@ export interface Match {
   id: string;
   playerIds: string[];
   teamIds: number[];
-  victoriousTeam: number; // 1 (for 100) or 2 (for 200)
+  victoriousTeamSide: number; // 1 (for 100) or 2 (for 200)
+  victoriousTeamId?: number;
   duration: number;
   raw?: RawMatchData;
   stats: Record<string, PlayerMatchData>;
@@ -58,7 +59,7 @@ export interface PlayerStat {
 }
 
 export interface PlayerMatchData {
-  teamNumber: number;
+  teamSideNumber: number;
   championPlayed: string;
   win: boolean;
   combat: {

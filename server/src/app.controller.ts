@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import type { AppSummary, LoadingStatus } from './interfaces/interfaces';
 
@@ -32,5 +32,10 @@ export class AppController {
   @Get('status')
   getStatus(): LoadingStatus {
     return this.appService.getLoadingStatus();
+  }
+
+  @Get('team-id-by-player/:playerId')
+  getTeamIdByPlayerId(@Param('playerId') playerId: string): number | undefined {
+    return this.appService.getTeamIdByPlayerId(playerId);
   }
 }

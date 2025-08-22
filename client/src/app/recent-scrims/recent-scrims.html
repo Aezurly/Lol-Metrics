@@ -1,0 +1,28 @@
+<div class="flex gap-4 flex-wrap items-center justify-center">
+    @if (!scrims.length) {
+    <div class="alert alert-info">
+        Aucune journée de scrims disponible.
+    </div>
+    } @else {
+    @for (scrim of scrims; track scrim.dateIso) {
+    <div class="card w-96 bg-base-100 card-lg shadow-sm">
+        <div class="card-body">
+            <div class="">
+                <h2 class="card-title">{{ scrim.displayDate }}</h2>
+                <div>
+                    <div class="text-sm opacity-70">{{ scrim.teams?.a?.name }} @if (scrim.teams?.b) { vs <b>{{
+                            scrim.teams?.b?.name }}</b> }</div>
+                </div>
+
+                <div class="text-right">
+                    <div class="badge badge-outline"
+                        [ngClass]="{'badge-success': scrim.score.split('-')[0] > scrim.score.split('-')[1]}">{{
+                        scrim.score
+                        }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+    }
+</div>

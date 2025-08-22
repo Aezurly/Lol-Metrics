@@ -63,18 +63,18 @@ export class PlayerService {
       participantStats.vision,
       participantStats.income,
     );
-    this.updateGlobalStats(player, match, participantStats.teamNumber);
+    this.updateGlobalStats(player, match, participantStats.teamSideNumber);
     player.stats.wins += participantStats.win ? 1 : 0;
   }
 
   private updateGlobalStats(
     player: Player,
     match: Match,
-    teamNumber: number,
+    teamSideNumber: number,
   ): void {
     player.stats.totalTimePlayed += match.duration;
     const teamPlayersInMatch: string[] = Object.entries(match.stats)
-      .filter(([_, p]) => p.teamNumber === teamNumber)
+      .filter(([_, p]) => p.teamSideNumber === teamSideNumber)
       .map(([playerId, _]) => playerId);
 
     const totalTeamKills = teamPlayersInMatch.reduce((totalKills, playerId) => {

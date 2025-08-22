@@ -102,6 +102,16 @@ export class DataStoreService implements OnModuleInit {
     return Object.values(this._teams);
   }
 
+  getTeamIdByPlayerId(playerId: string): number | undefined {
+    const player = this._players[playerId];
+    if (player?.teamId) {
+      console.warn(
+        `Player ${playerId} with name ${player.name} has teamId ${player.teamId} but team not found in teams store`,
+      );
+    }
+    return player?.teamId;
+  }
+
   private async saveData(): Promise<void> {
     console.warn('Data not saved for now');
     try {

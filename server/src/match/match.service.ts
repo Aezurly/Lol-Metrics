@@ -32,15 +32,11 @@ export class MatchService {
       id: matchId,
       playerIds: this.getPlayerIds(raw),
       teamIds: [],
-      victoriousTeam: 0,
+      victoriousTeamSide: 0,
       duration: raw.gameDuration || 0,
       raw: raw,
       stats: this.getParticipantStats(raw),
     };
-    const winningPlayer = Object.values(match.stats).find(
-      (player) => player.win,
-    );
-    match.victoriousTeam = winningPlayer ? winningPlayer.teamNumber : 0; // 0 si erreur, 1 pour 100, 2 pour 200
     return match;
   }
 
@@ -61,5 +57,30 @@ export class MatchService {
       stats[puuid] = this.statsNormalizer.extractParticipantStats(participant);
     });
     return stats;
+  }
+
+  async assignVictoriousTeamId(match: Match): Promise<void> {
+    match.victoriousTeamSide = 0;
+    match.victoriousTeamId = undefined;
+
+    for (const [playerId, player] of Object.entries(match.stats)) {
+      if (!player.win) continue;
+
+      if (!match.victoriousTeamSide && player.teamSideNumber) {
+        match.victoriousTeamSide = player.teamSideNumber; // 1 for 100, 2 for 200
+      }
+
+      const teamId = this.dataStore.getTeamIdByPlayerId(playerId);
+      if (teamId !== undefined) {
+        match.victoriousTeamId = teamId;
+        break;
+      }
+    }
+
+    if (match.victoriousTeamId === undefined) {
+      console.warn(
+        `Could not determine victoriousTeamId for match ${match.id}`,
+      );
+    }
   }
 }

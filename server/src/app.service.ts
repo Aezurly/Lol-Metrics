@@ -82,4 +82,8 @@ export class AppService implements OnModuleInit {
       matchesCount: this.dataStore.getMatchIds().length,
     };
   }
+
+  getTeamIdByPlayerId(playerId: string): number | undefined {
+    return this.dataStore.getTeamIdByPlayerId(playerId);
+  }
 }

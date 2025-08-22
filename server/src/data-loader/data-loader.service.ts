@@ -30,6 +30,7 @@ export class DataLoaderService {
       const match = await this.matchService.normalizeAndSave(raw, matchId);
       await this.playerService.updateFromMatch(match);
       await this.teamService.updateTeamStatsFromMatch(match);
+      await this.matchService.assignVictoriousTeamId(match);
       console.log(`✅ Match ${matchId} processed and teams updated.`);
     }
   }
