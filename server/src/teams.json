@@ -10,7 +10,8 @@
         "Écureuil Rouge",
         "Aezurly",
         "Juju",
-        "Max2mox"
+        "Max2mox",
+        "odul"
       ],
       "LBLCS": true
     },
@@ -120,6 +121,19 @@
         "Nx Angel",
         "ThaiDie",
         "LethalPeaches"
+      ],
+      "LBLCS": true
+    },
+    {
+      "id": 10,
+      "name": "Jobless Piggies",
+      "playersNames": [
+        "CosmicSheepo",
+        "Anti Faker",
+        "Gogoscorp",
+        "alom",
+        "HCLW",
+        "Cơm Tấm Số một"
       ],
       "LBLCS": true
     }
