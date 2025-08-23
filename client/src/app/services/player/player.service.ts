@@ -12,6 +12,19 @@ export class PlayerService {
 
   private readonly teamsService = inject(TeamsService);
 
+  private readonly playerMap: Map<string, Player> = new Map();
+
+  updatePlayerMap(players: Player[]): void {
+    this.playerMap.clear();
+    players.forEach((player) => {
+      this.playerMap.set(player.uid, player);
+    });
+  }
+
+  getPlayerById(playerId: string): Player | undefined {
+    return this.playerMap.get(playerId);
+  }
+
   getKDA(player: Player): string {
     const stats: PlayerStat = player.stats;
     if (stats.totalDeaths === 0) {

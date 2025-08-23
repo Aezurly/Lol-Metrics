@@ -42,6 +42,7 @@ export class GlobalPlayerTable implements OnInit {
       next: (summary) => {
         this.teamsService.updateTeamMap(summary.teamList);
 
+        this.playerService.updatePlayerMap(summary.playerList);
         this.originalPlayers = [...summary.playerList];
         this.filteredPlayers = [...summary.playerList];
         this.applyFilters();

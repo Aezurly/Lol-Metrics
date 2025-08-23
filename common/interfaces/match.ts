@@ -12,7 +12,7 @@ export interface Match {
   playerIds: string[];
   teamIds: number[];
   victoriousTeamSide: number; // 1 (for 100) or 2 (for 200)
-  victoriousTeamId?: number;
+  victoriousTeamId: number;
   duration: number;
   raw?: RawMatchData;
   stats: Record<string, PlayerMatchData>;

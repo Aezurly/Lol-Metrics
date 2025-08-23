@@ -4,6 +4,8 @@ import { Match, Player, Team } from '@common/interfaces/match';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TeamsService } from './teams/teams.service';
+import { MatchsService } from './matchs.service';
+import { PlayerService } from './player/player.service';
 
 export interface Scrim {
   date: Date;
@@ -17,8 +19,7 @@ type AppSummaryView = {
   matchIds: string[];
   playerList: Player[];
   teamList: Team[];
-  matchs?: Record<string, Match>;
-  matches?: Record<string, Match>;
+  matchs: Record<string, Match>;
 };
 
 @Injectable({
@@ -26,10 +27,13 @@ type AppSummaryView = {
 })
 export class ScrimsService {
   scrimList: Scrim[] = [];
+  summary: AppSummaryView | undefined;
 
   constructor(
     private readonly communication: CommunicationService,
-    private readonly teamsService: TeamsService
+    private readonly teamsService: TeamsService,
+    private readonly matchsService: MatchsService,
+    private readonly playerService: PlayerService
   ) {}
 
   /**
@@ -38,6 +42,7 @@ export class ScrimsService {
   loadScrims(): Observable<Scrim[]> {
     return this.communication.getSummary().pipe(
       map((summary) => {
+        this.playerService.updatePlayerMap(summary.playerList);
         // ensure team names are available to consumers
         this.teamsService.updateTeamMap(
           (summary as AppSummaryView)?.teamList ?? []
@@ -46,6 +51,8 @@ export class ScrimsService {
         const scrims = this.buildScrimListFromSummary(
           summary as AppSummaryView
         );
+        this.summary = summary as AppSummaryView;
+        this.matchsService.matchs = this.summary.matchs;
         this.scrimList = scrims;
         return scrims;
       })
@@ -95,7 +102,7 @@ export class ScrimsService {
   private parseMatchesMap(
     summary: AppSummaryView
   ): Record<string, Match> | undefined {
-    return summary.matchs || summary.matches || undefined;
+    return summary.matchs || undefined;
   }
 
   private buildPlayerTeamMap(playerList: Player[]): Map<string, number> {

@@ -33,6 +33,7 @@ export class MatchService {
       playerIds: this.getPlayerIds(raw),
       teamIds: [],
       victoriousTeamSide: 0,
+      victoriousTeamId: -1,
       duration: raw.gameDuration || 0,
       raw: raw,
       stats: this.getParticipantStats(raw),
@@ -61,7 +62,7 @@ export class MatchService {
 
   async assignVictoriousTeamId(match: Match): Promise<void> {
     match.victoriousTeamSide = 0;
-    match.victoriousTeamId = undefined;
+    match.victoriousTeamId = -1;
 
     for (const [playerId, player] of Object.entries(match.stats)) {
       if (!player.win) continue;
