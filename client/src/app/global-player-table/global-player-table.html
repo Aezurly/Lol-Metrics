@@ -1,7 +1,7 @@
 <div class="p-6">
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold">Player Statistics</h2>
-        <button class="btn btn-primary" [class.btn-disabled]="loading" (click)="reloadData()" [disabled]="loading">
+        <button class="btn btn-accent" [class.btn-disabled]="loading" (click)="reloadData()" [disabled]="loading">
             @if (loading) {
             <span class="loading loading-spinner loading-sm"></span>
             }

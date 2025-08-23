@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -30,7 +31,7 @@ export class Header implements OnInit {
 
   private applyTheme(): void {
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-      const theme = this.isDarkTheme ? 'dark' : 'pastel';
+      const theme = this.isDarkTheme ? 'dark' : 'mycupcake';
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
     }

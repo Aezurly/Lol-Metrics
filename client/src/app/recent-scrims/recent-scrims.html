@@ -1,11 +1,11 @@
-<div class="flex gap-4 flex-wrap items-center justify-center">
+<div class="flex gap-4 flex-wrap items-center justify-center mt-6">
     @if (!scrims.length) {
     <div class="alert alert-info">
         Aucune journée de scrims disponible.
     </div>
     } @else {
     @for (scrim of scrims; track scrim.dateIso) {
-    <div class="card w-128 bg-base-100 card-lg shadow-sm">
+    <div class="card w-128 bg-base-300 card-lg shadow-sm card-border">
         <div class="card-body">
             <div class="">
                 <div class="flex justify-between items-center">
@@ -13,18 +13,20 @@
                     <div class="badge badge-soft" [ngClass]="getSuccessClass(scrim)">{{ scrim.score }}</div>
                 </div>
 
-                <div class="text-sm opacity-70">{{ scrim.teams?.a?.name }} @if (scrim.teams?.b) { vs <b>{{
-                        scrim.teams?.b?.name }}</b> }</div>
+                <div class="text-sm">{{ scrim.teams?.a?.name }}
+                    @if (scrim.teams?.b) {
+                    vs <span class="badge badge-outline p-2 font-semibold">{{ scrim.teams?.b?.name }}</span>
+                    }</div>
 
             </div>
 
-            <ul class="list bg-base-100 rounded-box shadow-md">
+            <ul class="list bg-base-200 rounded-box shadow-md">
 
                 <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Matchs</li>
 
                 @for (matchRecap of scrimMatchsRecaps[scrim.dateIso]; track matchRecap.id) {
                 <li class="list">
-                    <div class="collapse collapse-arrow bg-base-100 border border-base-200">
+                    <div class="collapse collapse-arrow bg-base-200 border border-base-100">
                         <input type="checkbox" />
                         <div class="collapse-title flex items-center justify-between gap-4">
                             <div class="">Match {{ matchRecap.id.slice(11, 13) }} <div
@@ -56,7 +58,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @for (player of getPlayersBySide(matchRecap, 1); track player.id) {
+                                        @for (player of getPlayersBySide(matchRecap, 0); track player.id) {
                                         <tr>
                                             <td>{{ player.name }}</td>
                                             <td>{{ player.champ }}</td>
