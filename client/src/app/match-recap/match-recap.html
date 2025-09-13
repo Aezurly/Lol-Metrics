@@ -1,0 +1,70 @@
+@if (recap) {
+<div class="match-recap">
+    <header class="recap-header">
+        <h3>{{ recap.id }}</h3>
+        <div class="flex gap-2 justify-around flex-wrap">
+            <span class="badge badge-outline">Duration: {{ formatDuration(recap.duration) }}</span>
+            <span class="badge badge-success">Winner: {{ recap.victoriousTeamId != null ?
+                teamsService.getTeamName(recap.victoriousTeamId) :
+                'N/A' }}</span>
+            @if (recap.isOfficial) { <span class="badge badge-warning">Official</span> }
+        </div>
+    </header>
+
+    <!-- Grid-based layout inspired by UI example: left = Blue, center spacer, right = Red -->
+    <div class="recap-grid grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Header row showing team names on large screens -->
+        <div class="hidden lg:flex items-center justify-start font-semibold">Blue ({{ recap.teamSides[0] }})</div>
+        <div class="hidden lg:flex items-center justify-center"></div>
+        <div class="hidden lg:flex items-center justify-end font-semibold">Red ({{ recap.teamSides[1] }})</div>
+
+        <!-- Player rows: stacked on small screens, 3-column layout on large screens -->
+        <div class="col-span-3 flex flex-col gap-3">
+            @for (i of rows; track i) {
+            <div
+                class="player-row flex items-center justify-between gap-4 h-16 w-full bg-purple-200/5 p-4 rounded lg:flex-row-reverse">
+                <!-- Blue player (left on large screens, right on small) -->
+                <div class="player-card flex items-center gap-4 w-full lg:w-1/3"
+                    [class.winner]="recap.victoriousTeamId === recap.teamSides[0]">
+                    @if (bluePlayers[i]) {
+                    <div class="grid grid-cols-[3fr_1fr] grid-rows-[auto_auto] gap-1 text-right">
+                        <img src="https://cdn.communitydragon.org/15.18.1/champion/{{ bluePlayers[i].champ }}/square"
+                            alt="{{ bluePlayers[i].champ }}" class="h-full row-span-2 col-2">
+                        <div class="name font-semibold col-1 row-1">{{ bluePlayers[i].name }}</div>
+
+                        <div class="meta text-sm text-gray-400 col-1 row-2">{{ bluePlayers[i].champ }} • {{
+                            bluePlayers[i].k
+                            }}/{{
+                            bluePlayers[i].d }}/{{ bluePlayers[i].a }}</div>
+
+                    </div>
+                    }
+                </div>
+
+                <!-- center spacer / aggregated stat -->
+                <div class="hidden lg:flex items-center justify-center w-1/3">
+                    <!-- placeholder for aggregated stats -->
+                </div>
+
+                <!-- Red player (right on large screens, left on small) -->
+                <div class="player-card flex items-center gap-4 w-full lg:w-1/3 justify-end"
+                    [class.winner]="recap.victoriousTeamId === recap.teamSides[1]">
+                    @if (redPlayers[i]) {
+                    <div class="grid grid-cols-[1fr_3fr] gap-1">
+                        <img src="https://cdn.communitydragon.org/15.18.1/champion/{{ redPlayers[i].champ }}/square"
+                            alt="{{ redPlayers[i].champ }}" class="h-full row-span-2">
+                        <div class="name font-semibold">{{ redPlayers[i].name }}</div>
+
+                        <div class="meta text-sm text-gray-400">{{ redPlayers[i].champ }} • {{ redPlayers[i].k }}/{{
+                            redPlayers[i].d }}/{{ redPlayers[i].a }}</div>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+} @else {
+<p>No match selected.</p>
+}
