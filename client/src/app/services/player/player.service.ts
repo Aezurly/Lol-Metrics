@@ -225,6 +225,7 @@ export class PlayerService {
       kda: () => this.getKDAValue(player),
       kills: () => player.stats.totalKills / player.matchIds.length,
       deaths: () => player.stats.totalDeaths / player.matchIds.length,
+      assists: () => player.stats.totalAssists / player.matchIds.length,
       csPerMin: () => this.getCSPerMinuteValue(player),
       damagePerMin: () => this.getDamagePerMinuteValue(player),
       goldPerMin: () => this.getGoldPerMinuteValue(player),

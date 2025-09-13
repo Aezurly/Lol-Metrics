@@ -7,6 +7,8 @@ export enum Role {
   UNKNOWN = "UNKNOWN",
 }
 
+export const MATCH_ID_PARTS_NUMBER = 4;
+
 export interface Match {
   id: string;
   playerIds: string[];
@@ -16,6 +18,7 @@ export interface Match {
   duration: number;
   raw?: RawMatchData;
   stats: Record<string, PlayerMatchData>;
+  isOfficial?: boolean;
 }
 
 export interface RawMatchData {

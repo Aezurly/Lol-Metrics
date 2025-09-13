@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScrimsService, Scrim as svcScrim } from '../services/scrims.service';
 import { TeamsService } from '../services/teams/teams.service';
-import { Match } from '@common/interfaces/match';
+import { MATCH_ID_PARTS_NUMBER } from '@common/interfaces/match';
 import { MatchRecap, MatchsService } from '../services/matchs.service';
+
+export const NUMBER_OF_PLAYERS_PER_SIDE = 5;
 
 @Component({
   selector: 'app-recent-scrims',
@@ -46,7 +48,7 @@ export class RecentScrims implements OnInit {
 
   private toViewModel(s: svcScrim): Scrim {
     const dateIsoOnly = this.toLocalIsoDate(s.date);
-    const displayDate = this.formatDateFrench(dateIsoOnly);
+    const displayDate = this.formatDateEnglish(dateIsoOnly);
 
     const ourTeamId = 0;
     const opponentId = s.opponentTeamId;
@@ -54,6 +56,9 @@ export class RecentScrims implements OnInit {
     const aWins = s.score?.[ourTeamId] ?? 0;
     const bWins = s.score?.[opponentId] ?? 0;
 
+    const isOfficial = s.matchIds.some((id) => {
+      return id.split('-').length > MATCH_ID_PARTS_NUMBER;
+    });
     return {
       matchIds: s.matchIds,
       dateIso: `${dateIsoOnly}::${opponentId}::${s.matchIds?.[0] ?? ''}`,
@@ -63,6 +68,7 @@ export class RecentScrims implements OnInit {
         a: { id: ourTeamId, name: this.teamsService.getTeamName(ourTeamId) },
         b: { id: opponentId, name: this.teamsService.getTeamName(opponentId) },
       },
+      isOfficial,
     };
   }
 
@@ -75,10 +81,10 @@ export class RecentScrims implements OnInit {
     return `${y}-${m}-${day}`;
   }
 
-  private formatDateFrench(isoDate: string): string {
+  private formatDateEnglish(isoDate: string): string {
     try {
       const d = new Date(isoDate + 'T00:00:00');
-      return d.toLocaleDateString('fr-FR', {
+      return d.toLocaleDateString('en-US', {
         weekday: 'short',
         day: '2-digit',
         month: 'short',
@@ -95,7 +101,7 @@ export class RecentScrims implements OnInit {
 
   protected getPlayerGridClass(side: number, index: number): string {
     const col = side === 0 ? 1 : 2;
-    const row = (index % 5) + 1;
+    const row = (index % NUMBER_OF_PLAYERS_PER_SIDE) + 1;
     return `row-start-${row} row-end-${row + 1} col-${col}`;
   }
 
@@ -105,7 +111,7 @@ export class RecentScrims implements OnInit {
     index: number
   ): { row: number; col: number } {
     return {
-      row: (index % 5) + 1,
+      row: (index % NUMBER_OF_PLAYERS_PER_SIDE) + 1,
       col: side === 0 ? 1 : 2,
     };
   }
@@ -164,4 +170,5 @@ interface Scrim {
     a?: { id: number; name: string };
     b?: { id: number; name: string };
   };
+  isOfficial: boolean;
 }

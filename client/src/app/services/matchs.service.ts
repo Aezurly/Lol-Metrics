@@ -17,6 +17,7 @@ export interface MatchRecap {
     d: number; // deaths
     a: number; // assists
   }[];
+  isOfficial?: boolean;
 }
 
 @Injectable({
@@ -36,7 +37,6 @@ export class MatchsService {
     if (!match) return undefined;
 
     const teamSides: number[] = [0, 0];
-    console.log(match.victoriousTeamSide, match.victoriousTeamId);
     teamSides[match.victoriousTeamSide - 1] = match.victoriousTeamId;
     teamSides[1 - (match.victoriousTeamSide - 1)] =
       match.victoriousTeamId === 0
@@ -64,6 +64,7 @@ export class MatchsService {
       teamSides: teamSides,
       duration: match.duration,
       players: players,
+      isOfficial: match.isOfficial,
     };
   }
 }

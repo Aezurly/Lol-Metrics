@@ -37,6 +37,7 @@ export class MatchService {
       duration: raw.gameDuration || 0,
       raw: raw,
       stats: this.getParticipantStats(raw),
+      isOfficial: matchId.split('-').length > 4,
     };
     return match;
   }

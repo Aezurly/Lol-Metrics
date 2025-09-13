@@ -1,7 +1,8 @@
 <div class="flex gap-4 flex-wrap items-center justify-center mt-6">
     @if (!scrims.length) {
-    <div class="alert alert-info">
-        Aucune journée de scrims disponible.
+    <div class="text-center py-20">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+        <p class="text-lg mt-4">Loading scrims...</p>
     </div>
     } @else {
     @for (scrim of scrims; track scrim.dateIso) {
@@ -10,8 +11,14 @@
             <div class="">
                 <div class="flex justify-between items-center">
                     <h2 class="card-title">{{ scrim.displayDate }}</h2>
-                    <div class="badge badge-soft" [ngClass]="getSuccessClass(scrim)">{{ scrim.score }}</div>
+                    <div class="flex gap-2 items-center">
+                        @if(scrim.isOfficial) {
+                        <div class="badge badge-warning">Official</div>
+                        }
+                        <div class="badge badge-soft flex" [ngClass]="getSuccessClass(scrim)">{{ scrim.score }}</div>
+                    </div>
                 </div>
+
 
                 <div class="text-sm">{{ scrim.teams?.a?.name }}
                     @if (scrim.teams?.b) {
@@ -52,7 +59,7 @@
                                 <table class="table table-sm">
                                     <thead>
                                         <tr class="text-sm uppercase opacity-60">
-                                            <th scope="col">Joueur</th>
+                                            <th scope="col">Player</th>
                                             <th scope="col">Champion</th>
                                             <th class="text-right" scope="col">KDA</th>
                                         </tr>
@@ -91,7 +98,7 @@
                                 <table class="table table-sm">
                                     <thead>
                                         <tr class="uppercase opacity-80 text-xs">
-                                            <th scope="col">Joueur</th>
+                                            <th scope="col">Player</th>
                                             <th scope="col">Champion</th>
                                             <th class="text-right" scope="col">KDA</th>
                                         </tr>

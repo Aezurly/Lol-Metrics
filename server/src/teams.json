@@ -136,6 +136,36 @@
         "Cơm Tấm Số một"
       ],
       "LBLCS": true
+    },
+    {
+      "id": 11,
+      "name": "Lurkers",
+      "playersNames": [
+        "AquaZebra",
+        "ShoyuRamen",
+        "Deadly Blueberry",
+        "Amoristic",
+        "Tension"
+      ],
+      "LBLCS": true
+    },
+    {
+      "id": 12,
+      "name": "B1 Udyr",
+      "playersNames": ["Sportz", "y2jerich0", "Rin", "art", "STN Strangleroot"],
+      "LBLCS": true
+    },
+    {
+      "id": 13,
+      "name": "Cheenis Boys",
+      "playersNames": [
+        "Zebra",
+        "Dean Keaton",
+        "Cheenis",
+        "TMAT",
+        "Blue Moon Jelly"
+      ],
+      "LBLCS": true
     }
   ]
 }
