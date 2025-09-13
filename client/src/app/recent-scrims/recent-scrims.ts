@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ScrimsService, Scrim as svcScrim } from '../services/scrims.service';
+import { ScrimsService, ScrimView } from '../services/scrims.service';
 import { TeamsService } from '../services/teams/teams.service';
-import { MATCH_ID_PARTS_NUMBER } from '@common/interfaces/match';
 import { MatchRecap, MatchsService } from '../services/matchs.service';
-
-export const NUMBER_OF_PLAYERS_PER_SIDE = 5;
 
 @Component({
   selector: 'app-recent-scrims',
@@ -16,7 +13,7 @@ export const NUMBER_OF_PLAYERS_PER_SIDE = 5;
 })
 export class RecentScrims implements OnInit {
   // View model aligned with template usage
-  scrims: Scrim[] = [];
+  scrims: ScrimView[] = [];
   scrimMatchsRecaps: Record<string, MatchRecap[]> = {};
 
   constructor(
@@ -29,80 +26,21 @@ export class RecentScrims implements OnInit {
     // Load scrims and map to the view model
     this.scrimsService.loadScrims().subscribe({
       next: (scrims) => {
-        this.scrims = scrims.map((s) => this.toViewModel(s));
+        this.scrims = scrims.map((s) => this.scrimsService.toViewModel(s));
         this.scrims.forEach((s) => {
-          const recaps = this.getMatchRecapForScrim(s);
+          const recaps = this.scrimsService.getMatchRecapForScrim(s);
           if (recaps.length > 0) this.scrimMatchsRecaps[s.dateIso] = recaps;
         });
       },
       error: (err) => console.error('Failed to load scrims', err),
     });
   }
-
-  getMatchRecapForScrim(scrim: Scrim): MatchRecap[] {
-    const recaps = scrim.matchIds
-      .map((id) => this.matchsService.getMatchRecapById(id))
-      .filter((m): m is MatchRecap => m !== undefined);
-    return recaps;
-  }
-
-  private toViewModel(s: svcScrim): Scrim {
-    const dateIsoOnly = this.toLocalIsoDate(s.date);
-    const displayDate = this.formatDateEnglish(dateIsoOnly);
-
-    const ourTeamId = 0;
-    const opponentId = s.opponentTeamId;
-
-    const aWins = s.score?.[ourTeamId] ?? 0;
-    const bWins = s.score?.[opponentId] ?? 0;
-
-    const isOfficial = s.matchIds.some((id) => {
-      return id.split('-').length > MATCH_ID_PARTS_NUMBER;
-    });
-    return {
-      matchIds: s.matchIds,
-      dateIso: `${dateIsoOnly}::${opponentId}::${s.matchIds?.[0] ?? ''}`,
-      displayDate,
-      score: `${aWins} - ${bWins}`,
-      teams: {
-        a: { id: ourTeamId, name: this.teamsService.getTeamName(ourTeamId) },
-        b: { id: opponentId, name: this.teamsService.getTeamName(opponentId) },
-      },
-      isOfficial,
-    };
-  }
-
-  private toLocalIsoDate(d: Date): string {
-    const date = new Date(d);
-    // Build YYYY-MM-DD in local time to avoid timezone shifts
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
-
-  private formatDateEnglish(isoDate: string): string {
-    try {
-      const d = new Date(isoDate + 'T00:00:00');
-      return d.toLocaleDateString('en-US', {
-        weekday: 'short',
-        day: '2-digit',
-        month: 'short',
-      });
-    } catch {
-      return isoDate;
-    }
-  }
-
-  protected getSuccessClass(scrim: Scrim): string {
-    const [aWins, bWins] = scrim.score.split(' - ').map(Number);
-    return aWins > bWins ? 'badge-success' : '';
+  protected getSuccessClass(scrim: ScrimView): string {
+    return this.scrimsService.getSuccessClass(scrim);
   }
 
   protected getPlayerGridClass(side: number, index: number): string {
-    const col = side === 0 ? 1 : 2;
-    const row = (index % NUMBER_OF_PLAYERS_PER_SIDE) + 1;
-    return `row-start-${row} row-end-${row + 1} col-${col}`;
+    return this.scrimsService.getPlayerGridClass(side, index);
   }
 
   // Return computed grid position to bind inline styles (wins over DaisyUI rules)
@@ -110,65 +48,40 @@ export class RecentScrims implements OnInit {
     side: number,
     index: number
   ): { row: number; col: number } {
-    return {
-      row: (index % NUMBER_OF_PLAYERS_PER_SIDE) + 1,
-      col: side === 0 ? 1 : 2,
-    };
+    return this.scrimsService.getPlayerGridPos(side, index);
   }
 
   // Helper to split players by team side (0: blue, 1: red)
   protected getPlayersBySide(recap: MatchRecap, side: 0 | 1) {
-    return recap.players.filter((p) => p.side === side);
+    return this.scrimsService.getPlayersBySide(recap, side);
   }
 
   // Determine if Blue side won
   protected isBlueVictory(recap: MatchRecap): boolean {
-    if (recap.victoriousTeamId == null) return false;
-    return recap.victoriousTeamId === recap.teamSides?.[0];
+    return this.scrimsService.isBlueVictory(recap);
   }
 
   // Build label: "Victory (Blue Side)" / "Defeat (Red Side)"
   protected getSideOutcomeLabel(recap: MatchRecap, side: 0 | 1): string {
-    const blueWon = this.isBlueVictory(recap);
-    const isVictory = side === 0 ? blueWon : !blueWon;
-    return `${isVictory ? 'Victory' : 'Defeat'}`;
+    return this.scrimsService.getSideOutcomeLabel(recap, side);
   }
 
   protected getWinningTeamName(recap: MatchRecap): string {
-    if (recap.victoriousTeamId == null) return 'N/A';
-    const teamId = recap.victoriousTeamId;
-    return this.teamsService.getTeamName(teamId);
+    return this.scrimsService.getWinningTeamName(recap);
   }
 
   protected getWinningSideName(recap: MatchRecap): string {
-    if (recap.victoriousTeamId == null) return 'N/A';
-    const teamId = recap.victoriousTeamId;
-    return recap.teamSides?.[0] === teamId ? 'Blue Side' : 'Red Side';
+    return this.scrimsService.getWinningSideName(recap);
   }
 
   protected getTeamNameBySide(recap: MatchRecap, side: 0 | 1): string {
-    const teamId = recap.teamSides?.[side];
-    if (teamId == null) return 'N/A';
-    const teamName = this.teamsService.getTeamName(teamId);
-    return teamName;
+    return this.scrimsService.getTeamNameBySide(recap, side);
   }
 
   protected getMatchDuration(recap: MatchRecap): string {
-    const minutes = Math.floor(recap.duration / 60000);
-    const seconds = Math.floor((recap.duration % 60000) / 1000);
-    return `${minutes}:${seconds}`;
+    return this.scrimsService.getMatchDuration(recap);
   }
 }
 
 // Local view model for the template
-interface Scrim {
-  matchIds: string[];
-  dateIso: string; // used for *trackBy*
-  displayDate: string;
-  score: string; // e.g., "2 - 1"
-  teams?: {
-    a?: { id: number; name: string };
-    b?: { id: number; name: string };
-  };
-  isOfficial: boolean;
-}
+// scrim view model is exported from ScrimsService
