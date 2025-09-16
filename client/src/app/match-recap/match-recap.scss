@@ -1,0 +1,47 @@
+img {
+  max-width: 4em;
+  max-height: 4em;
+  aspect-ratio: 1 / 1;
+  border-radius: 1.5em;
+  object-fit: cover;
+  color: transparent;
+  clip-path: inset(8%);
+}
+
+.name {
+  padding-top: 0.3em;
+  height: 80%;
+}
+
+.damage {
+  display: flex;
+  align-items: center;
+  color: white;
+  border-radius: 0.2em;
+  height: 2em;
+  padding: 0 0.2em;
+  grid-row: span 2;
+  align-self: center;
+  min-width: 2em;
+
+  p {
+    font-size: 0.8em;
+  }
+}
+
+.blue {
+  .damage {
+    background-color: #057fd2;
+    justify-content: flex-end;
+    text-align: left;
+  }
+}
+
+.red {
+  .damage {
+    background-color: #e1004b;
+    justify-content: flex-start;
+    text-align: right;
+    justify-self: end;
+  }
+}

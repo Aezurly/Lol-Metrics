@@ -3,60 +3,105 @@
     <header class="recap-header">
         <h3>{{ recap.id }}</h3>
         <div class="flex gap-2 justify-around flex-wrap">
-            <span class="badge badge-outline">Duration: {{ formatDuration(recap.duration) }}</span>
-            <span class="badge badge-success">Winner: {{ recap.victoriousTeamId != null ?
+            <span class="badge badge-neutral font-semibold p-3">Duration: {{ formatDuration(recap.duration) }}</span>
+            <span class="badge badge-success font-semibold p-3">{{ recap.victoriousTeamId != null ?
                 teamsService.getTeamName(recap.victoriousTeamId) :
                 'N/A' }}</span>
-            @if (recap.isOfficial) { <span class="badge badge-warning">Official</span> }
+
         </div>
     </header>
 
     <!-- Grid-based layout inspired by UI example: left = Blue, center spacer, right = Red -->
     <div class="recap-grid grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- Header row showing team names on large screens -->
-        <div class="hidden lg:flex items-center justify-start font-semibold">Blue ({{ recap.teamSides[0] }})</div>
+        <div class="hidden lg:flex items-center justify-start font-semibold gap-4">Blue
+            @if( recap.teamSides[0] == recap.victoriousTeamId) {
+            <span class="badge badge-soft badge-success font-light">Victory</span>
+            } @else {
+            <span class="badge badge-soft badge-error font-light">Defeat</span>
+            }
+        </div>
         <div class="hidden lg:flex items-center justify-center"></div>
-        <div class="hidden lg:flex items-center justify-end font-semibold">Red ({{ recap.teamSides[1] }})</div>
+        <div class="hidden lg:flex items-center justify-end font-semibold gap-4">
+            @if( recap.teamSides[1] == recap.victoriousTeamId) {
+            <span class="badge badge-soft badge-success font-light">Victory</span>
+            } @else {
+            <span class="badge badge-soft badge-error font-light">Defeat</span>
+            }
+
+            Red
+        </div>
 
         <!-- Player rows: stacked on small screens, 3-column layout on large screens -->
-        <div class="col-span-3 flex flex-col gap-3">
+        <div class="col-span-3 flex flex-col gap-3 blue">
             @for (i of rows; track i) {
-            <div
-                class="player-row flex items-center justify-between gap-4 h-16 w-full bg-purple-200/5 p-4 rounded lg:flex-row-reverse">
+            <div class="player-row flex items-center justify-between gap-4 h-16 w-full bg-purple-200/5 p-4 rounded">
                 <!-- Blue player (left on large screens, right on small) -->
-                <div class="player-card flex items-center gap-4 w-full lg:w-1/3"
+                <div class="player-card flex items-center gap-4 w-full"
                     [class.winner]="recap.victoriousTeamId === recap.teamSides[0]">
                     @if (bluePlayers[i]) {
-                    <div class="grid grid-cols-[3fr_1fr] grid-rows-[auto_auto] gap-1 text-right">
-                        <img src="https://cdn.communitydragon.org/15.18.1/champion/{{ bluePlayers[i].champ }}/square"
-                            alt="{{ bluePlayers[i].champ }}" class="h-full row-span-2 col-2">
-                        <div class="name font-semibold col-1 row-1">{{ bluePlayers[i].name }}</div>
 
-                        <div class="meta text-sm text-gray-400 col-1 row-2">{{ bluePlayers[i].champ }} • {{
-                            bluePlayers[i].k
-                            }}/{{
-                            bluePlayers[i].d }}/{{ bluePlayers[i].a }}</div>
+                    <div class="grid grid-cols-[2fr_2fr_1fr_3fr] grid-rows-[auto_auto] gap-1 text-right">
+
+                        <div
+                            class="grid grid-cols-5 items-center text-center w-24 p-0 float-right row-start-1 col-start-1 font-semibold">
+                            <span>{{ bluePlayers[i].k }}</span>
+                            <span class="text-xs opacity-30">/</span>
+                            <span class="text-error opacity-70">
+                                {{ bluePlayers[i].d }}</span>
+                            <span class="text-xs opacity-30">/</span>
+                            <span>{{ bluePlayers[i].a }}</span>
+                        </div>
+                        <div class="p-0 text-center row-start-2 col-start-1">
+                            <span class="font-bold" [ngClass]="getKdaColorClass(bluePlayers[i])">{{
+                                getKda(bluePlayers[i]) }}</span>
+                            <span class="opacity-50 text-xs ml-1"> KDA</span>
+                        </div>
+
+                        <img src="https://cdn.communitydragon.org/15.18.1/champion/{{ bluePlayers[i].champ }}/square"
+                            alt="{{ bluePlayers[i].champ }}" class="h-full row-span-2 col-3">
+                        <div class="name font-semibold col-2 row-1">{{ bluePlayers[i].name }}</div>
+
+                        <div class="meta text-sm text-gray-400 col-2 row-2">{{ bluePlayers[i].champ }}</div>
+
+                        <div class="damage row-span-2"
+                            [ngStyle]="{ 'width': getDamageBarWidth(bluePlayers[i].id) + '%' }">
+                            <p>{{ getDamageStats(bluePlayers[i].id) }}</p>
+                        </div>
 
                     </div>
                     }
                 </div>
 
-                <!-- center spacer / aggregated stat -->
-                <div class="hidden lg:flex items-center justify-center w-1/3">
-                    <!-- placeholder for aggregated stats -->
-                </div>
-
                 <!-- Red player (right on large screens, left on small) -->
-                <div class="player-card flex items-center gap-4 w-full lg:w-1/3 justify-end"
+                <div class="player-card flex items-center gap-4 w-full justify-end red"
                     [class.winner]="recap.victoriousTeamId === recap.teamSides[1]">
                     @if (redPlayers[i]) {
-                    <div class="grid grid-cols-[1fr_3fr] gap-1">
+                    <div class="grid grid-cols-[3fr_1fr_2fr_2fr] gap-1">
+                        <div class="damage col-1 row-span-2"
+                            [ngStyle]="{ 'width': getDamageBarWidth(redPlayers[i].id) + '%' }">
+                            <p>{{ getDamageStats(redPlayers[i].id) }}</p>
+                        </div>
                         <img src="https://cdn.communitydragon.org/15.18.1/champion/{{ redPlayers[i].champ }}/square"
-                            alt="{{ redPlayers[i].champ }}" class="h-full row-span-2">
-                        <div class="name font-semibold">{{ redPlayers[i].name }}</div>
+                            alt="{{ redPlayers[i].champ }}" class="h-full row-span-2 col-2">
+                        <div class="name font-semibold col-3">{{ redPlayers[i].name }}</div>
 
-                        <div class="meta text-sm text-gray-400">{{ redPlayers[i].champ }} • {{ redPlayers[i].k }}/{{
-                            redPlayers[i].d }}/{{ redPlayers[i].a }}</div>
+                        <div class="meta text-sm text-gray-400 col-3">{{ redPlayers[i].champ }}</div>
+
+                        <div
+                            class="grid grid-cols-5 items-center text-center w-24 p-0 float-right row-start-1 col-start-4 font-semibold">
+                            <span>{{ redPlayers[i].k }}</span>
+                            <span class="text-xs opacity-30">/</span>
+                            <span class="text-error opacity-70">
+                                {{ redPlayers[i].d }}</span>
+                            <span class="text-xs opacity-30">/</span>
+                            <span>{{ redPlayers[i].a }}</span>
+                        </div>
+                        <div class="p-0 text-center">
+                            <span class="font-bold" [ngClass]="getKdaColorClass(redPlayers[i])">{{
+                                getKda(redPlayers[i]) }}</span>
+                            <span class="opacity-50 text-xs ml-1"> KDA</span>
+                        </div>
                     </div>
                     }
                 </div>

@@ -7,17 +7,19 @@ export interface MatchRecap {
   victoriousTeamId?: number;
   duration: number;
   teamSides: number[]; // index 0 is blue, index 1 is red, value is teamId
-  players: {
-    id: string;
-    name: string;
-    teamId: number | null;
-    champ: string | null;
-    side: number; // 0 for blue, 1 for red
-    k: number; // kills
-    d: number; // deaths
-    a: number; // assists
-  }[];
+  players: PlayerRecap[];
   isOfficial?: boolean;
+}
+
+export interface PlayerRecap {
+  id: string;
+  name: string;
+  teamId: number | null;
+  champ: string | null;
+  side: number; // 0 for blue, 1 for red
+  k: number; // kills
+  d: number; // deaths
+  a: number; // assists
 }
 
 @Injectable({

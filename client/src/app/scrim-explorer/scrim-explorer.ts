@@ -38,11 +38,13 @@ export class ScrimExplorer implements OnInit {
     const recaps = this.scrimsService.getMatchRecapForScrim(scrim);
     if (recaps.length > 0) this.scrimMatchsRecaps[scrim.dateIso] = recaps;
     this.selectedMatchId = this.scrimMatchsRecaps[scrim.dateIso][0]?.id || null;
+    this.matchsService.selectedMatchId = this.selectedMatchId;
     console.log(this.selectedScrim, recaps);
   }
 
   protected selectMatch(matchId: string): void {
     console.log('Selected match', matchId);
+    this.selectedMatchId = matchId;
     this.matchsService.selectedMatchId = matchId;
   }
 }

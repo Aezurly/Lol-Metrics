@@ -11,7 +11,7 @@
   --color-base-content: oklch(23.574% 0.066 313.189);
   --color-primary: oklch(85% 0.138 181.071);
   --color-primary-content: oklch(27% 0.046 192.524);
-  --color-secondary: oklch(82% 0.12 346.018);
+  --color-secondary: oklch(0.887 0.06659703433669316 355.771868265918);
   --color-secondary-content: oklch(52% 0.223 3.958);
   --color-accent: oklch(81% 0.111 293.571);
   --color-accent-content: oklch(28% 0.141 291.089);
@@ -72,4 +72,9 @@
 
 html {
   font-family: "Roboto", sans-serif;
+}
+
+.btn-soft.btn-secondary:not(.btn-active) {
+  background-color: oklch(93.825% 0.01756 354.775);
+  color: oklch(68.142% 0.17066 354.437);
 }

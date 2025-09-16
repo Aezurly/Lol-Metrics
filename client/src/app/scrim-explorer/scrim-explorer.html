@@ -52,9 +52,12 @@
                         }
                     </div>
                 </div>
-                <div class="select-match">
+                <div class="select-match flex gap-2 flex-wrap justify-center font-semibold">
                     @for(match of scrimMatchsRecaps[selectedScrim.dateIso]; track match) {
-                    <button class="btn btn-outline btn-neutral" (click)="selectMatch(match.id)">{{ match.id }}</button>
+                    <button class="btn btn-secondary btn-soft py-1" (click)="selectMatch(match.id)"
+                        [ngClass]="{'btn-active': selectedMatchId === match.id}">Game
+                        {{
+                        match.id.split('-')[3] }}</button>
                     }
                 </div>
                 <section class="matchRecap">

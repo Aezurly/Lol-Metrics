@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { Match } from '@common/interfaces/match';
-import { MatchsService, MatchRecap } from '../services/matchs.service';
+import { Match, PlayerMatchData } from '@common/interfaces/match';
+import {
+  MatchsService,
+  MatchRecap,
+  PlayerRecap,
+} from '../services/matchs.service';
 import { TeamsService } from '../services/teams/teams.service';
 
 @Component({
@@ -36,6 +40,7 @@ export class MatchRecapComponent {
   }
 
   get bluePlayers() {
+    console.log(this.recap?.players);
     return this.recap?.players.filter((p) => p.side === 0) ?? [];
   }
 
@@ -50,5 +55,55 @@ export class MatchRecapComponent {
       .toString()
       .padStart(2, '0');
     return `${minutes}:${seconds}`;
+  }
+
+  getDamageStats(playerId: string): string {
+    const totalDamage = this.getDamage(playerId);
+    const damageInThousands = totalDamage / 1000;
+    const formattedDamage =
+      damageInThousands >= 1
+        ? `${damageInThousands.toFixed(1)}k`
+        : totalDamage.toString();
+    return `${formattedDamage}`;
+  }
+
+  getDamageBarWidth(playerId: string): string {
+    const damage = this.getDamage(playerId);
+    const maxDamage = Math.max(
+      ...(this.recap?.players.map((p) => this.getDamage(p.id)) ?? [0])
+    );
+    return (maxDamage > 0 ? (damage / maxDamage) * 100 : 0).toString();
+  }
+
+  getDamage(playerId: string): number {
+    const player: PlayerMatchData | undefined = this.match?.stats[playerId];
+    const totalDamage = player?.damage.totalDamageToChampions;
+    if (!totalDamage) return 0;
+    return totalDamage;
+  }
+
+  getKda(player: PlayerRecap): string {
+    if (player.d === 0) {
+      return (player.k + player.a).toFixed(1);
+    }
+    const kda = (player.k + player.a) / Math.max(1, player.d);
+    return kda.toFixed(1);
+  }
+
+  getKdaColorClass(player: PlayerRecap): string {
+    const kda = parseFloat(this.getKda(player));
+    const allPlayerKdas =
+      this.recap?.players.map((p) => parseFloat(this.getKda(p))) ?? [];
+    allPlayerKdas.sort((a, b) => b - a); // Sort descending
+
+    const playerRank = allPlayerKdas.indexOf(kda) + 1;
+    const percentile =
+      ((allPlayerKdas.length - playerRank + 1) / allPlayerKdas.length) * 100;
+
+    if (percentile >= 90) return 'text-amber-500';
+    if (percentile >= 80) return 'text-violet-500';
+    if (percentile >= 60) return 'text-blue-400';
+    if (percentile >= 20) return '';
+    return 'text-red-600';
   }
 }
