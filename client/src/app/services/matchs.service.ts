@@ -11,6 +11,16 @@ export interface MatchRecap {
   isOfficial?: boolean;
 }
 
+export interface PerSideStat {
+  gold: number;
+  grubs: number;
+  dragons: number;
+  herald: number;
+  barons: number;
+  atakhan: number;
+  towers: number;
+}
+
 export interface PlayerRecap {
   id: string;
   name: string;
@@ -34,6 +44,40 @@ export class MatchsService {
 
   getMatchById(id: string): Match | undefined {
     return this.matchs[id];
+  }
+
+  getPerSideStat(side: number): PerSideStat {
+    const match = this.getMatchById(this.selectedMatchId!);
+    if (!match) throw new Error('No match selected or match not found');
+    const players = match.playerIds
+      .map((pid) => match.stats?.[pid])
+      .filter(
+        (p): p is NonNullable<typeof p> => !!p && p.teamSideNumber === side
+      );
+
+    return players.reduce(
+      (acc, p) => {
+        acc.gold += p.income?.goldEarned ?? 0;
+        acc.grubs += p.objectives?.voidGrubKills ?? 0;
+        acc.dragons += p.objectives?.dragonKills ?? 0;
+        acc.herald += p.objectives?.riftHeraldKills ?? 0;
+        acc.barons += p.objectives?.baronKills ?? 0;
+        acc.atakhan += p.objectives?.ObjectivesStolen ?? 0;
+        acc.towers +=
+          (p.objectives?.turretsKilled ?? 0) +
+          (p.objectives?.turretPlatesDestroyed ?? 0);
+        return acc;
+      },
+      {
+        gold: 0,
+        grubs: 0,
+        dragons: 0,
+        herald: 0,
+        barons: 0,
+        atakhan: 0,
+        towers: 0,
+      } as PerSideStat
+    );
   }
 
   getMatchRecapById(id: string): MatchRecap | undefined {

@@ -5,6 +5,7 @@ import {
   MatchsService,
   MatchRecap,
   PlayerRecap,
+  PerSideStat,
 } from '../services/matchs.service';
 import { TeamsService } from '../services/teams/teams.service';
 import { GameStatTable } from '../game-stat-table/game-stat-table';
@@ -64,6 +65,13 @@ export class MatchRecapComponent {
     return this.sortPlayersByRole(
       this.recap?.players.filter((p) => p.side === 1) ?? []
     );
+  }
+
+  getPerSideStat(side: number): PerSideStat | undefined {
+    if (!this.match) return;
+    const s = this.matchsService.getPerSideStat(side);
+    console.log(s);
+    return s;
   }
 
   private sortPlayersByRole(players: PlayerRecap[]): PlayerRecap[] {

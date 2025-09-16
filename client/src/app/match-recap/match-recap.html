@@ -1,7 +1,6 @@
 @if (recap) {
 <div class="match-recap">
     <header class="recap-header">
-        <h3>{{ recap.id }}</h3>
         <div class="flex gap-2 justify-around flex-wrap">
             <span class="badge badge-neutral font-semibold p-3">Duration: {{ formatDuration(recap.duration) }}</span>
             <span class="badge badge-success font-semibold p-3">{{ recap.victoriousTeamId != null ?
@@ -11,15 +10,80 @@
         </div>
     </header>
 
-    <!-- Grid-based layout inspired by UI example: left = Blue, center spacer, right = Red -->
-    <div class="recap-grid grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <!-- Header row showing team names on large screens -->
+    <div class="recap-grid grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
         <div class="hidden lg:flex items-center justify-start font-semibold gap-4">Blue
             @if( recap.teamSides[0] == recap.victoriousTeamId) {
             <span class="badge badge-soft badge-success font-light">Victory</span>
             } @else {
             <span class="badge badge-soft badge-error font-light">Defeat</span>
             }
+            <div class="flex gap-1 flex-wrap justify-center">
+                <span class="badge badge-accent badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(1)?.grubs ?? 0) < (getPerSideStat(2)?.grubs ?? 0)}">
+                    {{getPerSideStat(1)?.grubs}}<svg viewBox="0 0 32 32" class="size-4 scale-110 grub"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M24 7.26397C27 7.26397 27 10.264 27 11.264C27 14.264 24 15.264 24 15.264H27C26.0189 15.918 25.3587 17.1069 24.6345 18.4107C23.1444 21.0938 21.3837 24.264 16 24.264C10.6163 24.264 8.85561 21.0938 7.36548 18.4107C6.64135 17.1069 5.9811 15.918 5 15.264H8C8 15.264 5 14.264 5 11.264C5 10.264 5 7.26397 8 7.26397H9.58357C10.5151 7.26397 11.4337 7.0471 12.2669 6.63052L15.1056 5.21115C15.6686 4.92962 16.3314 4.92962 16.8944 5.21115L19.7331 6.63051C20.5663 7.0471 21.4849 7.26397 22.4164 7.26397H24ZM19.5354 12.264L15.9999 8.72845L12.4644 12.264L13.7322 13.5319L10.4646 16.7995L14.0001 20.335L15.9993 18.3359L17.9984 20.335L21.5339 16.7995L18.2669 13.5325L19.5354 12.264Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+                <span class="badge badge-warning badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(1)?.dragons ?? 0) < (getPerSideStat(2)?.dragons ?? 0)}">
+                    {{getPerSideStat(1)?.dragons}}<svg viewBox="0 0 32 32" class="size-4 scale-110"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M23 5.5V11.5H28L23 16.5V20.5L18 24.5L17 27.5H15L14 24.5L9 20.5V16.5L4 11.5H9V5.5L13.5 10L16 4.5L18.4965 10L23 5.5ZM17 17.5L22 14.5L19 20.5L17 19.5V17.5ZM10 14.5L15 17.5V19.5L13 20.5L10 14.5Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+                <span class="badge badge-secondary badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(1)?.herald ?? 0) < (getPerSideStat(2)?.herald ?? 0)}">
+                    {{getPerSideStat(1)?.herald}}<svg viewBox="0 0 32 32" class="size-4 scale-110"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M15.9997 19.339C16.7132 19.339 17.2917 17.9477 17.2917 16.7586C17.2917 15.5694 16.7132 15.0327 15.9997 15.0327C15.2862 15.0327 14.7079 15.5694 14.7079 16.7586C14.7079 17.9477 15.2862 19.339 15.9997 19.339Z"
+                            fill="currentColor"></path>
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M11.6803 11.0327H12.3511C13.4192 10.3975 14.667 10.0327 15.9999 10.0327C17.3329 10.0327 18.5806 10.3975 19.6488 11.0327H20.3195C20.3195 9.03271 20.3195 8.03553 18.9999 6.03271C21.3332 6.53271 25.9999 9.43271 25.9999 17.0327C24.3362 17.6982 23.0184 19.4492 22.3345 20.4989C21.1392 22.777 18.751 24.3309 15.9999 24.3309C13.2488 24.3309 10.8606 22.777 9.66527 20.4989C8.98137 19.4492 7.66364 17.6982 5.9999 17.0327C5.9999 9.43271 10.6666 6.53271 12.9999 6.03271C11.6803 8.03553 11.6803 9.03271 11.6803 11.0327ZM19.7496 16.3329C19.7496 19.1532 18.0709 21.0327 16 21.0327C13.9291 21.0327 12.2502 19.1532 12.2502 16.3329C12.2502 14.262 13.9967 13.5333 16 13.5333C18.0034 13.5333 19.7496 14.262 19.7496 16.3329Z"
+                            fill="currentColor"></path>
+                        <path
+                            d="M22.1668 25.0509C22.3553 24.4995 22.678 24.0152 23.0006 23.5309C23.4138 22.9108 23.8269 22.2909 23.9576 21.5307C24.0044 21.2585 24.2404 21.0099 24.4829 21.142C24.6688 21.2433 24.7837 21.4011 24.8964 21.556C25.0726 21.798 25.2434 22.0327 25.6711 22.0327C26.6434 22.0327 27 22.0327 27 23.0332C27 23.9184 25.4367 25.585 22.997 25.9576C22.451 26.041 21.9881 25.5736 22.1668 25.0509Z"
+                            fill="currentColor"></path>
+                        <path
+                            d="M8.99936 23.5309C9.322 24.0152 9.64473 24.4995 9.83321 25.0509C10.0119 25.5736 9.549 26.041 9.00297 25.9576C6.56334 25.585 5 23.9184 5 23.0332C5 22.0327 5.35661 22.0327 6.32887 22.0327C6.75662 22.0327 6.92743 21.798 7.10356 21.556C7.21629 21.4011 7.33121 21.2433 7.51707 21.142C7.75959 21.0099 7.99559 21.2585 8.0424 21.5307C8.17314 22.2909 8.58618 22.9108 8.99936 23.5309Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+                <span class="badge badge-accent badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(1)?.barons ?? 0) < (getPerSideStat(2)?.barons ?? 0)}">
+                    {{getPerSideStat(1)?.barons}}<svg viewBox="0 0 32 32" class="size-4 scale-110 grub"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M18.2557 5.31855L26.3761 9.8299C26.7612 10.0438 27 10.4497 27 10.8902C27 11.0785 26.9562 11.2642 26.872 11.4326L24.5883 16C24.0923 21.0584 20.4607 25.5315 19.333 26.8109C19.1841 26.9799 18.9147 26.9207 18.8435 26.7069L18 24.1765H14L13.1565 26.7069C13.0853 26.9207 12.8159 26.9799 12.667 26.8109C11.5393 25.5315 7.90768 21.0584 7.41174 16L5.12805 11.4326C5.04384 11.2642 5 11.0785 5 10.8902C5 10.4497 5.23881 10.0438 5.62386 9.8299L13.7443 5.31855C13.8276 5.27226 13.9223 5.35774 13.8848 5.44536L11 12.1765C11.8333 13.0098 14 13.7765 16 10.1765C18 13.7765 20.1667 13.0098 21 12.1765L18.1152 5.44536C18.0777 5.35774 18.1724 5.27226 18.2557 5.31855ZM16 17.1765C16.8284 17.1765 17.5 16.5049 17.5 15.6765C17.5 14.8481 16.8284 14.1765 16 14.1765C15.1716 14.1765 14.5 14.8481 14.5 15.6765C14.5 16.5049 15.1716 17.1765 16 17.1765ZM16 22.1765C16.8284 22.1765 17.5 21.5049 17.5 20.6765C17.5 19.8481 16.8284 19.1765 16 19.1765C15.1716 19.1765 14.5 19.8481 14.5 20.6765C14.5 21.5049 15.1716 22.1765 16 22.1765ZM20.25 18.1765C20.25 19.0049 19.5784 19.6765 18.75 19.6765C17.9216 19.6765 17.25 19.0049 17.25 18.1765C17.25 17.3481 17.9216 16.6765 18.75 16.6765C19.5784 16.6765 20.25 17.3481 20.25 18.1765ZM13.25 19.6765C14.0784 19.6765 14.75 19.0049 14.75 18.1765C14.75 17.3481 14.0784 16.6765 13.25 16.6765C12.4216 16.6765 11.75 17.3481 11.75 18.1765C11.75 19.0049 12.4216 19.6765 13.25 19.6765Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+                <span class="badge badge-primary badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(1)?.towers ?? 0) < (getPerSideStat(2)?.towers ?? 0)}">
+                    {{getPerSideStat(1)?.towers}}<svg viewBox="0 0 32 32" class="size-4 scale-110 grub"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M22.5068 10.3065L16 3.79968L9.49317 10.3065L11.3867 12.2001H8L16 20.2001L24 12.2001H20.6133L22.5068 10.3065ZM19.8207 10.3064L16 6.48567L12.1793 10.3064L16 14.1271L19.8207 10.3064Z"
+                            fill="currentColor"></path>
+                        <path d="M13.1429 28.2001L10.2857 15.6286L16 22.4858L21.7143 15.6286L18.8571 28.2001H13.1429Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+                <span class="badge badge-warning badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(1)?.gold ?? 0) < (getPerSideStat(2)?.gold ?? 0)}">
+                    {{((getPerSideStat(1)?.gold ?? 0 )/1000).toFixed(1)}}k<svg viewBox="0 0 32 32"
+                        class="size-4 scale-110 grub" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M26 13.5C26 15.7244 24.386 17.6661 21.9885 18.7023C21.9961 18.8009 22 18.9001 22 19C22 22.0376 18.4183 24.5 14 24.5C9.58172 24.5 6 22.0376 6 19C6 16.9484 7.63395 15.1591 10.056 14.2137C10.019 13.9797 10 13.7415 10 13.5C10 10.1863 13.5817 7.5 18 7.5C22.4183 7.5 26 10.1863 26 13.5ZM8.90918 18.5001C8.90918 17.6968 9.44495 16.9672 10.3174 16.4287C11.1646 17.631 13.6124 18.5001 16.5 18.5001C17.4145 18.5001 18.2849 18.4129 19.0743 18.2556C19.0854 18.3362 19.091 18.4178 19.091 18.5001C19.091 20.1569 16.8117 21.5001 14.0001 21.5001C11.1885 21.5001 8.90918 20.1569 8.90918 18.5001Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
         </div>
         <div class="lg:flex items-center justify-center gap-2">
             <button class="btn btn-sm btn-outline" (click)="selectStat('DAMAGE')"
@@ -40,6 +104,73 @@
             </button>
         </div>
         <div class="hidden lg:flex items-center justify-end font-semibold gap-4">
+            <div class="flex gap-1 flex-wrap justify-center">
+                <span class="badge badge-accent badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(2)?.grubs ?? 0) < (getPerSideStat(1)?.grubs ?? 0)}">
+                    {{getPerSideStat(2)?.grubs}}<svg viewBox="0 0 32 32" class="size-4 scale-110 grub"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M24 7.26397C27 7.26397 27 10.264 27 11.264C27 14.264 24 15.264 24 15.264H27C26.0189 15.918 25.3587 17.1069 24.6345 18.4107C23.1444 21.0938 21.3837 24.264 16 24.264C10.6163 24.264 8.85561 21.0938 7.36548 18.4107C6.64135 17.1069 5.9811 15.918 5 15.264H8C8 15.264 5 14.264 5 11.264C5 10.264 5 7.26397 8 7.26397H9.58357C10.5151 7.26397 11.4337 7.0471 12.2669 6.63052L15.1056 5.21115C15.6686 4.92962 16.3314 4.92962 16.8944 5.21115L19.7331 6.63051C20.5663 7.0471 21.4849 7.26397 22.4164 7.26397H24ZM19.5354 12.264L15.9999 8.72845L12.4644 12.264L13.7322 13.5319L10.4646 16.7995L14.0001 20.335L15.9993 18.3359L17.9984 20.335L21.5339 16.7995L18.2669 13.5325L19.5354 12.264Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+                <span class="badge badge-warning badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(2)?.dragons ?? 0) < (getPerSideStat(1)?.dragons ?? 0)}">
+                    {{getPerSideStat(2)?.dragons}}<svg viewBox="0 0 32 32" class="size-4 scale-110"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M23 5.5V11.5H28L23 16.5V20.5L18 24.5L17 27.5H15L14 24.5L9 20.5V16.5L4 11.5H9V5.5L13.5 10L16 4.5L18.4965 10L23 5.5ZM17 17.5L22 14.5L19 20.5L17 19.5V17.5ZM10 14.5L15 17.5V19.5L13 20.5L10 14.5Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+                <span class="badge badge-secondary badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(2)?.herald ?? 0) < (getPerSideStat(1)?.herald ?? 0)}">
+                    {{getPerSideStat(2)?.herald}}<svg viewBox="0 0 32 32" class="size-4 scale-110"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M15.9997 19.339C16.7132 19.339 17.2917 17.9477 17.2917 16.7586C17.2917 15.5694 16.7132 15.0327 15.9997 15.0327C15.2862 15.0327 14.7079 15.5694 14.7079 16.7586C14.7079 17.9477 15.2862 19.339 15.9997 19.339Z"
+                            fill="currentColor"></path>
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M11.6803 11.0327H12.3511C13.4192 10.3975 14.667 10.0327 15.9999 10.0327C17.3329 10.0327 18.5806 10.3975 19.6488 11.0327H20.3195C20.3195 9.03271 20.3195 8.03553 18.9999 6.03271C21.3332 6.53271 25.9999 9.43271 25.9999 17.0327C24.3362 17.6982 23.0184 19.4492 22.3345 20.4989C21.1392 22.777 18.751 24.3309 15.9999 24.3309C13.2488 24.3309 10.8606 22.777 9.66527 20.4989C8.98137 19.4492 7.66364 17.6982 5.9999 17.0327C5.9999 9.43271 10.6666 6.53271 12.9999 6.03271C11.6803 8.03553 11.6803 9.03271 11.6803 11.0327ZM19.7496 16.3329C19.7496 19.1532 18.0709 21.0327 16 21.0327C13.9291 21.0327 12.2502 19.1532 12.2502 16.3329C12.2502 14.262 13.9967 13.5333 16 13.5333C18.0034 13.5333 19.7496 14.262 19.7496 16.3329Z"
+                            fill="currentColor"></path>
+                        <path
+                            d="M22.1668 25.0509C22.3553 24.4995 22.678 24.0152 23.0006 23.5309C23.4138 22.9108 23.8269 22.2909 23.9576 21.5307C24.0044 21.2585 24.2404 21.0099 24.4829 21.142C24.6688 21.2433 24.7837 21.4011 24.8964 21.556C25.0726 21.798 25.2434 22.0327 25.6711 22.0327C26.6434 22.0327 27 22.0327 27 23.0332C27 23.9184 25.4367 25.585 22.997 25.9576C22.451 26.041 21.9881 25.5736 22.1668 25.0509Z"
+                            fill="currentColor"></path>
+                        <path
+                            d="M8.99936 23.5309C9.322 24.0152 9.64473 24.4995 9.83321 25.0509C10.0119 25.5736 9.549 26.041 9.00297 25.9576C6.56334 25.585 5 23.9184 5 23.0332C5 22.0327 5.35661 22.0327 6.32887 22.0327C6.75662 22.0327 6.92743 21.798 7.10356 21.556C7.21629 21.4011 7.33121 21.2433 7.51707 21.142C7.75959 21.0099 7.99559 21.2585 8.0424 21.5307C8.17314 22.2909 8.58618 22.9108 8.99936 23.5309Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+                <span class="badge badge-accent badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(2)?.barons ?? 0) < (getPerSideStat(1)?.barons ?? 0)}">
+                    {{getPerSideStat(2)?.barons}}<svg viewBox="0 0 32 32" class="size-4 scale-110 grub"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M18.2557 5.31855L26.3761 9.8299C26.7612 10.0438 27 10.4497 27 10.8902C27 11.0785 26.9562 11.2642 26.872 11.4326L24.5883 16C24.0923 21.0584 20.4607 25.5315 19.333 26.8109C19.1841 26.9799 18.9147 26.9207 18.8435 26.7069L18 24.1765H14L13.1565 26.7069C13.0853 26.9207 12.8159 26.9799 12.667 26.8109C11.5393 25.5315 7.90768 21.0584 7.41174 16L5.12805 11.4326C5.04384 11.2642 5 11.0785 5 10.8902C5 10.4497 5.23881 10.0438 5.62386 9.8299L13.7443 5.31855C13.8276 5.27226 13.9223 5.35774 13.8848 5.44536L11 12.1765C11.8333 13.0098 14 13.7765 16 10.1765C18 13.7765 20.1667 13.0098 21 12.1765L18.1152 5.44536C18.0777 5.35774 18.1724 5.27226 18.2557 5.31855ZM16 17.1765C16.8284 17.1765 17.5 16.5049 17.5 15.6765C17.5 14.8481 16.8284 14.1765 16 14.1765C15.1716 14.1765 14.5 14.8481 14.5 15.6765C14.5 16.5049 15.1716 17.1765 16 17.1765ZM16 22.1765C16.8284 22.1765 17.5 21.5049 17.5 20.6765C17.5 19.8481 16.8284 19.1765 16 19.1765C15.1716 19.1765 14.5 19.8481 14.5 20.6765C14.5 21.5049 15.1716 22.1765 16 22.1765ZM20.25 18.1765C20.25 19.0049 19.5784 19.6765 18.75 19.6765C17.9216 19.6765 17.25 19.0049 17.25 18.1765C17.25 17.3481 17.9216 16.6765 18.75 16.6765C19.5784 16.6765 20.25 17.3481 20.25 18.1765ZM13.25 19.6765C14.0784 19.6765 14.75 19.0049 14.75 18.1765C14.75 17.3481 14.0784 16.6765 13.25 16.6765C12.4216 16.6765 11.75 17.3481 11.75 18.1765C11.75 19.0049 12.4216 19.6765 13.25 19.6765Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+                <span class="badge badge-primary badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(2)?.towers ?? 0) < (getPerSideStat(1)?.towers ?? 0)}">
+                    {{getPerSideStat(2)?.towers}}<svg viewBox="0 0 32 32" class="size-4 scale-110 grub"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M22.5068 10.3065L16 3.79968L9.49317 10.3065L11.3867 12.2001H8L16 20.2001L24 12.2001H20.6133L22.5068 10.3065ZM19.8207 10.3064L16 6.48567L12.1793 10.3064L16 14.1271L19.8207 10.3064Z"
+                            fill="currentColor"></path>
+                        <path d="M13.1429 28.2001L10.2857 15.6286L16 22.4858L21.7143 15.6286L18.8571 28.2001H13.1429Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+                <span class="badge badge-warning badge-xs gap-0"
+                    [ngClass]="{'badge-soft': (getPerSideStat(2)?.gold ?? 0) < (getPerSideStat(1)?.gold ?? 0)}">
+                    {{((getPerSideStat(2)?.gold ?? 0 )/1000).toFixed(1)}}k<svg viewBox="0 0 32 32"
+                        class="size-4 scale-110 grub" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M26 13.5C26 15.7244 24.386 17.6661 21.9885 18.7023C21.9961 18.8009 22 18.9001 22 19C22 22.0376 18.4183 24.5 14 24.5C9.58172 24.5 6 22.0376 6 19C6 16.9484 7.63395 15.1591 10.056 14.2137C10.019 13.9797 10 13.7415 10 13.5C10 10.1863 13.5817 7.5 18 7.5C22.4183 7.5 26 10.1863 26 13.5ZM8.90918 18.5001C8.90918 17.6968 9.44495 16.9672 10.3174 16.4287C11.1646 17.631 13.6124 18.5001 16.5 18.5001C17.4145 18.5001 18.2849 18.4129 19.0743 18.2556C19.0854 18.3362 19.091 18.4178 19.091 18.5001C19.091 20.1569 16.8117 21.5001 14.0001 21.5001C11.1885 21.5001 8.90918 20.1569 8.90918 18.5001Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
             @if( recap.teamSides[1] == recap.victoriousTeamId) {
             <span class="badge badge-soft badge-success font-light">Victory</span>
             } @else {
@@ -125,7 +256,8 @@
             }
         </div>
     </div>
-    <div>
+    <div class="mt-8">
+        <h3 class="card-title mb-6 justify-center">Complete Game Statistics</h3>
         <app-game-stat-table></app-game-stat-table>
     </div>
 </div>
