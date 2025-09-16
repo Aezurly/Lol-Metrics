@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { Match, PlayerMatchData } from '@common/interfaces/match';
 import {
   MatchsService,
@@ -7,6 +7,13 @@ import {
   PlayerRecap,
 } from '../services/matchs.service';
 import { TeamsService } from '../services/teams/teams.service';
+
+export enum StatsToCompare {
+  DAMAGE = 'DAMAGE',
+  GOLD = 'GOLD',
+  MINIONS = 'MINIONS',
+  VISION = 'VISION',
+}
 
 @Component({
   selector: 'app-match-recap',
@@ -17,6 +24,13 @@ import { TeamsService } from '../services/teams/teams.service';
 export class MatchRecapComponent {
   private readonly MS_PER_MINUTE = 60000;
   private readonly MS_PER_SECOND = 1000;
+  // KDA color percentile thresholds (named to satisfy lint rules)
+  private readonly KDA_PERCENTILE_AMBER = 90;
+  private readonly KDA_PERCENTILE_VIOLET = 80;
+  private readonly KDA_PERCENTILE_BLUE = 60;
+  private readonly KDA_PERCENTILE_RED = 20;
+  protected statToCompare = StatsToCompare.DAMAGE;
+
   constructor(
     public readonly matchsService: MatchsService,
     public readonly teamsService: TeamsService
@@ -40,7 +54,6 @@ export class MatchRecapComponent {
   }
 
   get bluePlayers() {
-    console.log(this.recap?.players);
     return this.recap?.players.filter((p) => p.side === 0) ?? [];
   }
 
@@ -57,22 +70,64 @@ export class MatchRecapComponent {
     return `${minutes}:${seconds}`;
   }
 
-  getDamageStats(playerId: string): string {
-    const totalDamage = this.getDamage(playerId);
-    const damageInThousands = totalDamage / 1000;
-    const formattedDamage =
-      damageInThousands >= 1
-        ? `${damageInThousands.toFixed(1)}k`
-        : totalDamage.toString();
-    return `${formattedDamage}`;
+  getStats(playerId: string): string {
+    const statValue = this.getStatValueBySelected(playerId);
+
+    // Format depending on stat type
+    if (
+      this.statToCompare === StatsToCompare.DAMAGE ||
+      this.statToCompare === StatsToCompare.GOLD
+    ) {
+      const statInThousands = statValue / 1000;
+      return statInThousands >= 1
+        ? `${statInThousands.toFixed(1)}k`
+        : statValue.toString();
+    }
+
+    // For minions and vision, integer display
+    return Math.round(statValue).toString();
   }
 
-  getDamageBarWidth(playerId: string): string {
-    const damage = this.getDamage(playerId);
-    const maxDamage = Math.max(
-      ...(this.recap?.players.map((p) => this.getDamage(p.id)) ?? [0])
-    );
-    return (maxDamage > 0 ? (damage / maxDamage) * 100 : 0).toString();
+  getBarWidth(playerId: string): string {
+    // compute numeric stat for the player and the max among players according to selected stat
+    const playerStat = this.getStatValueBySelected(playerId);
+    const allStats = this.recap?.players.map((p) =>
+      this.getStatValueBySelected(p.id)
+    ) ?? [0];
+    const maxStat = Math.max(...allStats, 0);
+
+    const pct = maxStat > 0 ? (playerStat / maxStat) * 100 : 0;
+    // keep a fixed precision for width but return plain number string for template percentage
+    return pct.toFixed(2).toString();
+  }
+
+  /**
+   * Return the numeric stat for a player according to the current `statToCompare`.
+   */
+  private getStatValueBySelected(playerId: string): number {
+    switch (this.statToCompare) {
+      case StatsToCompare.DAMAGE:
+        return this.getDamage(playerId);
+      case StatsToCompare.GOLD: {
+        const player = this.match?.stats[playerId];
+        return player?.income?.goldEarned ?? 0;
+      }
+      case StatsToCompare.MINIONS: {
+        const player = this.match?.stats[playerId];
+        // prefer lane minions then neutral minions if available
+        return (
+          player?.income?.totalMinionsKilled ??
+          player?.income?.neutralMinionsKilled ??
+          0
+        );
+      }
+      case StatsToCompare.VISION: {
+        const player = this.match?.stats[playerId];
+        return player?.vision?.visionScore ?? 0;
+      }
+      default:
+        return 0;
+    }
   }
 
   getDamage(playerId: string): number {
@@ -100,10 +155,20 @@ export class MatchRecapComponent {
     const percentile =
       ((allPlayerKdas.length - playerRank + 1) / allPlayerKdas.length) * 100;
 
-    if (percentile >= 90) return 'text-amber-500';
-    if (percentile >= 80) return 'text-violet-500';
-    if (percentile >= 60) return 'text-blue-400';
-    if (percentile >= 20) return '';
+    if (percentile >= this.KDA_PERCENTILE_AMBER) {
+      return 'text-amber-500';
+    } else if (percentile >= this.KDA_PERCENTILE_VIOLET) {
+      return 'text-violet-500';
+    } else if (percentile >= this.KDA_PERCENTILE_BLUE) {
+      return 'text-blue-400';
+    } else if (percentile >= this.KDA_PERCENTILE_RED) {
+      return '';
+    }
+
     return 'text-red-600';
+  }
+
+  protected selectStat(stat: string): void {
+    this.statToCompare = stat as StatsToCompare;
   }
 }

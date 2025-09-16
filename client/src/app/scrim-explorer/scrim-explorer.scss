@@ -9,3 +9,13 @@
   height: auto;
   font-weight: inherit;
 }
+
+li.btn-active {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.scrim-selector {
+  height: calc(100vh - 128px);
+  overflow-y: auto;
+}

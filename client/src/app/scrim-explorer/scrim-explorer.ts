@@ -24,9 +24,14 @@ export class ScrimExplorer implements OnInit {
 
   ngOnInit(): void {
     this.scrimsService.loadScrims().subscribe((scrims) => {
-      console.log('Recent Scrims:', scrims);
       this.scrimsViews = scrims.map((s) => this.scrimsService.toViewModel(s));
+      this.selectScrim(this.scrimsViews[0]);
     });
+  }
+
+  protected didTeamWon(scrim: ScrimView, teamSide: number): boolean {
+    const scores = scrim.score.split(' - ');
+    return scores[teamSide] > scores[teamSide ? 0 : 1];
   }
 
   protected getSuccessClass(scrim: ScrimView): string {
@@ -39,11 +44,9 @@ export class ScrimExplorer implements OnInit {
     if (recaps.length > 0) this.scrimMatchsRecaps[scrim.dateIso] = recaps;
     this.selectedMatchId = this.scrimMatchsRecaps[scrim.dateIso][0]?.id || null;
     this.matchsService.selectedMatchId = this.selectedMatchId;
-    console.log(this.selectedScrim, recaps);
   }
 
   protected selectMatch(matchId: string): void {
-    console.log('Selected match', matchId);
     this.selectedMatchId = matchId;
     this.matchsService.selectedMatchId = matchId;
   }

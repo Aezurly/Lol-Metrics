@@ -32,7 +32,6 @@ export class MatchsService {
   constructor(private readonly playerService: PlayerService) {}
 
   getMatchById(id: string): Match | undefined {
-    console.log('Getting match by ID:', id, this.matchs);
     return this.matchs[id];
   }
 

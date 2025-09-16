@@ -21,7 +21,24 @@
             <span class="badge badge-soft badge-error font-light">Defeat</span>
             }
         </div>
-        <div class="hidden lg:flex items-center justify-center"></div>
+        <div class="lg:flex items-center justify-center gap-2">
+            <button class="btn btn-sm btn-outline" (click)="selectStat('DAMAGE')"
+                [ngClass]="{'btn-active': statToCompare == 'DAMAGE'}">
+                Damage
+            </button>
+            <button class="btn btn-sm btn-outline" (click)="selectStat('GOLD')"
+                [ngClass]="{'btn-active': statToCompare == 'GOLD'}">
+                Gold
+            </button>
+            <button class="btn btn-sm btn-outline" (click)="selectStat('MINIONS')"
+                [ngClass]="{'btn-active': statToCompare == 'MINIONS'}">
+                Minions
+            </button>
+            <button class="btn btn-sm btn-outline" (click)="selectStat('VISION')"
+                [ngClass]="{'btn-active': statToCompare == 'VISION'}">
+                Vision Score
+            </button>
+        </div>
         <div class="hidden lg:flex items-center justify-end font-semibold gap-4">
             @if( recap.teamSides[1] == recap.victoriousTeamId) {
             <span class="badge badge-soft badge-success font-light">Victory</span>
@@ -64,9 +81,8 @@
 
                         <div class="meta text-sm text-gray-400 col-2 row-2">{{ bluePlayers[i].champ }}</div>
 
-                        <div class="damage row-span-2"
-                            [ngStyle]="{ 'width': getDamageBarWidth(bluePlayers[i].id) + '%' }">
-                            <p>{{ getDamageStats(bluePlayers[i].id) }}</p>
+                        <div class="damage row-span-2" [ngStyle]="{ 'width': getBarWidth(bluePlayers[i].id) + '%' }">
+                            <p>{{ getStats(bluePlayers[i].id) }}</p>
                         </div>
 
                     </div>
@@ -79,8 +95,8 @@
                     @if (redPlayers[i]) {
                     <div class="grid grid-cols-[3fr_1fr_2fr_2fr] gap-1">
                         <div class="damage col-1 row-span-2"
-                            [ngStyle]="{ 'width': getDamageBarWidth(redPlayers[i].id) + '%' }">
-                            <p>{{ getDamageStats(redPlayers[i].id) }}</p>
+                            [ngStyle]="{ 'width': getBarWidth(redPlayers[i].id) + '%' }">
+                            <p>{{ getStats(redPlayers[i].id) }}</p>
                         </div>
                         <img src="https://cdn.communitydragon.org/15.18.1/champion/{{ redPlayers[i].champ }}/square"
                             alt="{{ redPlayers[i].champ }}" class="h-full row-span-2 col-2">
