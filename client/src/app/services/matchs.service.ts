@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Match } from '@common/interfaces/match';
+import { Match, Role } from '@common/interfaces/match';
 import { PlayerService } from './player/player.service';
 
 export interface MatchRecap {
@@ -20,6 +20,7 @@ export interface PlayerRecap {
   k: number; // kills
   d: number; // deaths
   a: number; // assists
+  role: Role;
 }
 
 @Injectable({
@@ -66,6 +67,7 @@ export class MatchsService {
         k: playerData?.combat?.kills ?? 0,
         d: playerData?.combat?.deaths ?? 0,
         a: playerData?.combat?.assists ?? 0,
+        role: player?.role ?? Role.UNKNOWN,
       };
     });
 

@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Match, PlayerMatchData } from '@common/interfaces/match';
+import { Match, PlayerMatchData, Role } from '@common/interfaces/match';
 import {
   MatchsService,
   MatchRecap,
   PlayerRecap,
 } from '../services/matchs.service';
 import { TeamsService } from '../services/teams/teams.service';
+import { GameStatTable } from '../game-stat-table/game-stat-table';
 
 export enum StatsToCompare {
   DAMAGE = 'DAMAGE',
@@ -17,7 +18,7 @@ export enum StatsToCompare {
 
 @Component({
   selector: 'app-match-recap',
-  imports: [CommonModule],
+  imports: [CommonModule, GameStatTable],
   templateUrl: './match-recap.html',
   styleUrl: './match-recap.scss',
 })
@@ -54,11 +55,30 @@ export class MatchRecapComponent {
   }
 
   get bluePlayers() {
-    return this.recap?.players.filter((p) => p.side === 0) ?? [];
+    return this.sortPlayersByRole(
+      this.recap?.players.filter((p) => p.side === 0) ?? []
+    );
   }
 
   get redPlayers() {
-    return this.recap?.players.filter((p) => p.side === 1) ?? [];
+    return this.sortPlayersByRole(
+      this.recap?.players.filter((p) => p.side === 1) ?? []
+    );
+  }
+
+  private sortPlayersByRole(players: PlayerRecap[]): PlayerRecap[] {
+    const roleOrder = [Role.TOP, Role.JUNGLE, Role.MID, Role.ADC, Role.SUPPORT];
+
+    return [...players].sort((a, b) => {
+      const aIndex = roleOrder.indexOf(a.role);
+      const bIndex = roleOrder.indexOf(b.role);
+
+      // If role not found, put at end
+      const aOrder = aIndex === -1 ? roleOrder.length : aIndex;
+      const bOrder = bIndex === -1 ? roleOrder.length : bIndex;
+
+      return aOrder - bOrder;
+    });
   }
 
   formatDuration(ms: number | undefined): string {

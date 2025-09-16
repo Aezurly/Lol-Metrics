@@ -1,0 +1,43 @@
+@if(match) {
+<div class="my-8 join join-vertical">
+
+    @for (cat of categories; track cat.title) {
+    <div class="collapse collapse-arrow border join-item border-neutral-200">
+        <input type="checkbox" />
+        <div class="collapse-title text-lg font-medium">{{ cat.title }}</div>
+        <div class="collapse-content">
+            <div class="overflow-x-auto">
+                <table class="table table-compact w-full table-zebra">
+                    <thead>
+                        <tr>
+                            <th class="text-left text-xs">&nbsp;</th>
+                            @for (p of orderedPlayers; track p.id) {
+                            <th class="text-center max-w-26 truncate text-xs">{{ p.name }}</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (attr of cat.attrs; track attr) {
+                        @if (attrHasNonZero(attr)) {
+                        <tr>
+                            <td class="font-semibold p-0 text-xs">{{ labelMap[attr] || attr }}</td>
+                            @for (p of orderedPlayers; track p.id) {
+                            <td class="text-center" [class.font-bold]="isAttrMax(attr, p.id)"
+                                [class.text-violet-400]="isAttrMax(attr, p.id)">{{ formatStat(attr, statFor(p.id,
+                                attr))
+                                }}</td>
+                            }
+                        </tr>
+                        }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    }
+
+</div>
+} @else {
+<p>No match selected.</p>
+}

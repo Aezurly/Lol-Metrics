@@ -16,6 +16,10 @@ li.btn-active {
 }
 
 .scrim-selector {
-  height: calc(100vh - 128px);
+  position: sticky;
+  position: -webkit-sticky;
+  top: calc(96px / 2);
+  height: calc(100vh - 96px);
   overflow-y: auto;
+  width: 300px;
 }
