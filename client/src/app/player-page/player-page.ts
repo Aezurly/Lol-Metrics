@@ -19,6 +19,8 @@ export class PlayerPage implements OnInit {
   ) {
     this.route.params.subscribe((params) => {
       this.playerName = params['name'];
+      this.playerService.currentRadarPlayerId =
+        this.playerService.getPlayerByName(this.playerName || '')?.uid || null;
     });
   }
 
@@ -39,6 +41,7 @@ export class PlayerPage implements OnInit {
       );
       return null;
     }
+    this.playerService.currentRadarPlayerId = playerId;
     return playerId;
   }
 

@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { LucideAngularModule, Swords, LandPlot, Zap } from 'lucide-angular';
 import { PlayerService } from '../services/player/player.service';
+import { RadarPlayerChart } from '../radar-player-chart/radar-player-chart';
 
 export interface PlayerStatView {
   numberOfGames: number;
@@ -14,7 +15,7 @@ export interface PlayerStatView {
 
 @Component({
   selector: 'app-player-stats',
-  imports: [LucideAngularModule],
+  imports: [LucideAngularModule, RadarPlayerChart],
   templateUrl: './player-stats.html',
   styleUrl: './player-stats.scss',
 })
@@ -23,9 +24,11 @@ export class PlayerStats {
   readonly LandPlot = LandPlot;
   readonly Zap = Zap;
 
-  @Input() playerId!: string | null;
-
   constructor(private readonly playerService: PlayerService) {}
+
+  get playerId(): string | null {
+    return this.playerService.currentRadarPlayerId;
+  }
 
   get totalGames(): number {
     return this.playerService.getTotalGames();

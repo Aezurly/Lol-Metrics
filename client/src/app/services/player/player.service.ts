@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
-import { Player, PlayerStat, Team } from '@common/interfaces/match';
+import { Player, PlayerStat, Role, Team } from '@common/interfaces/match';
 import { TeamsService } from '../teams/teams.service';
 import { CommunicationService } from '../communication/communication.service';
 
@@ -19,6 +19,7 @@ interface PlayerStatView {
   providedIn: 'root',
 })
 export class PlayerService {
+  currentRadarPlayerId: string | null = null;
   private static readonly PERFECT_KDA_VALUE = Infinity;
   private static readonly PERCENTILE_25 = 0.25;
   private static readonly PERCENTILE_75 = 0.75;
@@ -195,7 +196,7 @@ export class PlayerService {
   getKDAValue(player: Player): number {
     const stats: PlayerStat = player.stats;
     if (stats.totalDeaths === 0) {
-      return PlayerService.PERFECT_KDA_VALUE;
+      return stats.totalKills + stats.totalAssists;
     }
     return (stats.totalKills + stats.totalAssists) / stats.totalDeaths;
   }
@@ -402,4 +403,122 @@ export class PlayerService {
 
     return sortMethods[column]?.() ?? 0;
   }
+
+  getRadarData(): unknown {
+    const player = this.getPlayerById(this.currentRadarPlayerId || '');
+    if (!player) return null;
+    const role = player.role as Role;
+    let radarLabels = RADAR_CHART_LABELS;
+    let averageStats = this.getAveragePlayersRadarStats(player.role);
+    let playerStats = this.getRadarStats(player);
+    if (role === Role.SUPPORT) {
+      radarLabels = ['KDA', 'DPM', 'KP', 'GPM', 'Dmg/Gold', 'VS/m'];
+      averageStats = averageStats.slice(0, radarLabels.length);
+      playerStats = playerStats.slice(0, radarLabels.length);
+    }
+    const datas = {
+      labels: radarLabels,
+      datasets: [
+        {
+          label: `Average ${player.role}`,
+          data: averageStats,
+          borderColor: ACCENT_COLOR,
+          backgroundColor: ACCENT_COLOR + '30',
+        },
+        {
+          label: player.name,
+          data: playerStats,
+          borderColor: PRIMARY_COLOR,
+          backgroundColor: PRIMARY_COLOR + '30',
+        },
+      ],
+    };
+    return datas;
+  }
+
+  private getPlayersForRole(role: Role): Player[] {
+    return this.getAllPlayers().filter((p) => p.role === role);
+  }
+
+  private getAveragePlayersRadarStats(role: Role): number[] {
+    const players = this.getPlayersForRole(role);
+    if (players.length === 0) return Array(RADAR_CHART_LABELS.length).fill(0);
+
+    const totalStats = players.reduce((acc, player) => {
+      const playerStats = this.getRadarStats(player);
+      return acc.map((stat, index) => stat + playerStats[index]);
+    }, Array(RADAR_CHART_LABELS.length).fill(0));
+
+    return totalStats.map((stat) => stat / players.length);
+  }
+
+  private getRoleMetricBounds(role: Role): { min: number; max: number }[] {
+    const players = this.getPlayersForRole(role);
+    const metrics = players.map((p) => this.getRawRadarMetrics(p));
+
+    if (metrics.length === 0) {
+      return RADAR_CHART_LABELS.map(() => ({ min: 0, max: 0 }));
+    }
+
+    return RADAR_CHART_LABELS.map((_, i) => {
+      const values = metrics.map((m) => m[i]).filter((v) => Number.isFinite(v));
+      let min = values.length ? Math.min(...values) : 0;
+      let max = values.length ? Math.max(...values) : 0;
+
+      if (!isFinite(min)) min = 0;
+      if (!isFinite(max)) max = 0;
+
+      if (min === max && max !== 0) min = 0;
+
+      return { min, max };
+    });
+  }
+
+  private getRawRadarMetrics(player: Player): number[] {
+    return [
+      this.getKDAValue(player),
+      this.getDamagePerMinuteValue(player),
+      this.getKillParticipationValue(player),
+      this.getGoldPerMinuteValue(player),
+      this.getDamagePerGoldValue(player),
+      this.getVisionScorePerMinuteValue(player),
+      this.getCSPerMinuteValue(player),
+    ];
+  }
+
+  /**
+   * Scale a raw metric value to 0..100 given bounds where 100 maps to max and 0 to min.
+   * If max === min, returns 100 when value === max, otherwise 0. Bounds expected to be finite.
+   */
+  private scaleToPercent(value: number, min: number, max: number): number {
+    if (max === min) {
+      return value === max ? 100 : 0;
+    }
+    const clamped = Math.max(min, Math.min(max, value));
+    return ((clamped - min) / (max - min)) * 100;
+  }
+
+  private getRadarStats(player: Player): number[] {
+    const role = player.role as Role;
+    const bounds = this.getRoleMetricBounds(role);
+    const raw = this.getRawRadarMetrics(player);
+
+    return raw.map((val, i) => {
+      const { min, max } = bounds[i];
+      return Math.round(this.scaleToPercent(val, min, max) * 100) / 100;
+    });
+  }
 }
+
+export const RADAR_CHART_LABELS = [
+  'KDA',
+  'DPM',
+  'KP',
+  'GPM',
+  'Dmg/Gold',
+  'VS/m',
+  'CS/m',
+];
+
+export const PRIMARY_COLOR = '#00d8be';
+export const ACCENT_COLOR = '#b6a0fd';
