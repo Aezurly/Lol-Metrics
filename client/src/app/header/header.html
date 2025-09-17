@@ -11,14 +11,14 @@
             <div class="btn-group flex gap-2">
                 <a routerLink="/players" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active"
                     #rlaPlayers="routerLinkActive" class="btn btn-accent"
-                    [class.btn-soft]="!rlaPlayers.isActive">Players</a>
+                    [class.btn-soft]="!rlaPlayers.isActive">Players Global Statistics</a>
 
-                <a routerLink="/scrims" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active"
+                <a routerLink="/blocks" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active"
                     #rlaScrimExplorer="routerLinkActive" class="btn btn-accent"
                     [class.btn-soft]="!rlaScrimExplorer.isActive">Blocks Explorer</a>
-                <a routerLink="/recent-scrims" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active"
+                <a routerLink="/recent-blocks" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active"
                     #rlaScrims="routerLinkActive" class="btn btn-accent" [class.btn-soft]="!rlaScrims.isActive">Recent
-                    Scrims</a>
+                    Blocks</a>
             </div>
         </nav>
     </div>

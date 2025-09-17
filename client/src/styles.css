@@ -9,11 +9,11 @@
   --color-base-200: rgb(255, 255, 255);
   --color-base-300: rgb(247, 247, 247);
   --color-base-content: oklch(23.574% 0.066 313.189);
-  --color-primary: oklch(85% 0.138 181.071);
+  --color-primary: oklch(0.7838 0.1579 181.071);
   --color-primary-content: oklch(27% 0.046 192.524);
-  --color-secondary: oklch(0.887 0.06659703433669316 355.771868265918);
-  --color-secondary-content: oklch(52% 0.223 3.958);
-  --color-accent: oklch(81% 0.111 293.571);
+  --color-secondary: oklch(0.7162 0.1754 3.958);
+  --color-secondary-content: oklch(93.825% 0.01756 354.775);
+  --color-accent: oklch(0.7603 0.1332 294.087640229826);
   --color-accent-content: oklch(28% 0.141 291.089);
   --color-neutral: oklch(27% 0.006 286.033);
   --color-neutral-content: oklch(92% 0.004 286.32);
@@ -76,5 +76,5 @@ html {
 
 .btn-soft.btn-secondary:not(.btn-active) {
   background-color: oklch(93.825% 0.01756 354.775);
-  color: oklch(68.142% 0.17066 354.437);
+  color: oklch(61.858% 0.18436 356.107);
 }

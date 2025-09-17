@@ -4,10 +4,11 @@ import { CommunicationService } from '../services/communication/communication.se
 import { PlayerService } from '../services/player/player.service';
 import { TeamsService } from '../services/teams/teams.service';
 import { Player } from '@common/interfaces/match';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-global-player-table',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './global-player-table.html',
   styleUrl: './global-player-table.scss',
 })
@@ -37,36 +38,35 @@ export class GlobalPlayerTable implements OnInit {
   loadData(): void {
     this.loading = true;
     this.error = null;
-
-    this.communication.getSummary().subscribe({
-      next: (summary) => {
-        this.teamsService.updateTeamMap(summary.teamList);
-
-        this.playerService.updatePlayerMap(summary.playerList);
-        this.originalPlayers = [...summary.playerList];
-        this.filteredPlayers = [...summary.playerList];
+    // Use playerService to refresh and populate data
+    this.playerService
+      .refreshSummary()
+      .then((players) => {
+        this.originalPlayers = [...players];
+        this.filteredPlayers = [...players];
         this.applyFilters();
         this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to load data: ' + err.message;
+      })
+      .catch((err) => {
+        this.error = 'Failed to load data: ' + (err?.message ?? err);
         this.loading = false;
         console.error('Error loading summary:', err);
-      },
-    });
+      });
   }
 
   reloadData(): void {
-    this.communication.reloadAll().subscribe({
-      next: (response) => {
-        console.log(response.message);
-        this.loadData();
-      },
-      error: (err) => {
-        this.error = 'Failed to reload data: ' + err.message;
+    this.playerService
+      .reloadAllAndRefresh()
+      .then((players) => {
+        console.log('Reloaded and refreshed');
+        this.originalPlayers = [...players];
+        this.filteredPlayers = [...players];
+        this.applyFilters();
+      })
+      .catch((err) => {
+        this.error = 'Failed to reload data: ' + (err?.message ?? err);
         console.error('Error reloading data:', err);
-      },
-    });
+      });
   }
 
   protected getKDA(player: Player): string {

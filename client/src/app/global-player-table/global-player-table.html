@@ -460,7 +460,9 @@
             <tbody>
                 @for (player of players; track player.name) {
                 <tr>
-                    <td class="font-medium sticky-col">{{ player.name }}</td>
+                    <td class="font-medium sticky-col btn btn-ghost h-full" routerLink="/player/{{ player.name }}">
+                        {{ player.name }}
+                    </td>
                     <td>
                         <div class="badge" [ngClass]="getRoleBadgeClass(player.role)">{{ player.role }}</div>
                     </td>

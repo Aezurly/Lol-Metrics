@@ -23,3 +23,9 @@ li.btn-active {
   overflow-y: auto;
   width: 300px;
 }
+
+.select-match {
+  z-index: 2;
+  position: sticky;
+  top: 1em;
+}

@@ -63,9 +63,7 @@ export class MatchsService {
         acc.herald += p.objectives?.riftHeraldKills ?? 0;
         acc.barons += p.objectives?.baronKills ?? 0;
         acc.atakhan += p.objectives?.ObjectivesStolen ?? 0;
-        acc.towers +=
-          (p.objectives?.turretsKilled ?? 0) +
-          (p.objectives?.turretPlatesDestroyed ?? 0);
+        acc.towers += p.objectives?.turretsKilled ?? 0;
         return acc;
       },
       {

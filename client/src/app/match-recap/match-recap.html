@@ -27,7 +27,7 @@
                             fill="currentColor"></path>
                     </svg>
                 </span>
-                <span class="badge badge-warning badge-xs gap-0"
+                <span class="badge badge-error badge-xs gap-0"
                     [ngClass]="{'badge-soft': (getPerSideStat(1)?.dragons ?? 0) < (getPerSideStat(2)?.dragons ?? 0)}">
                     {{getPerSideStat(1)?.dragons}}<svg viewBox="0 0 32 32" class="size-4 scale-110"
                         xmlns="http://www.w3.org/2000/svg">
@@ -114,7 +114,7 @@
                             fill="currentColor"></path>
                     </svg>
                 </span>
-                <span class="badge badge-warning badge-xs gap-0"
+                <span class="badge badge-error badge-xs gap-0"
                     [ngClass]="{'badge-soft': (getPerSideStat(2)?.dragons ?? 0) < (getPerSideStat(1)?.dragons ?? 0)}">
                     {{getPerSideStat(2)?.dragons}}<svg viewBox="0 0 32 32" class="size-4 scale-110"
                         xmlns="http://www.w3.org/2000/svg">
@@ -185,7 +185,7 @@
             @for (i of rows; track i) {
             <div class="player-row flex items-center justify-between gap-4 h-16 w-full bg-purple-200/5 p-4 rounded">
                 <!-- Blue player (left on large screens, right on small) -->
-                <div class="player-card flex items-center gap-4 w-full"
+                <div class="player-card flex items-center gap-4 w-full justify-end"
                     [class.winner]="recap.victoriousTeamId === recap.teamSides[0]">
                     @if (bluePlayers[i]) {
 
@@ -221,7 +221,7 @@
                 </div>
 
                 <!-- Red player (right on large screens, left on small) -->
-                <div class="player-card flex items-center gap-4 w-full justify-end red"
+                <div class="player-card flex items-center gap-4 w-full justify-start red"
                     [class.winner]="recap.victoriousTeamId === recap.teamSides[1]">
                     @if (redPlayers[i]) {
                     <div class="grid grid-cols-[3fr_1fr_2fr_2fr] gap-1">
@@ -256,9 +256,9 @@
             }
         </div>
     </div>
-    <div class="mt-8">
+    <div class="mt-8 flex justify-center align-center flex-col">
         <h3 class="card-title mb-6 justify-center">Complete Game Statistics</h3>
-        <app-game-stat-table></app-game-stat-table>
+        <app-game-stat-table class="flex justify-center"></app-game-stat-table>
     </div>
 </div>
 } @else {

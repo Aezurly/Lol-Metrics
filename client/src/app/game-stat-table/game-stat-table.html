@@ -1,5 +1,5 @@
 @if(match) {
-<div class="join join-vertical">
+<div class="join join-vertical m-auto">
 
     @for (cat of categories; track cat.title) {
     <div class="collapse collapse-arrow border join-item border-neutral-200">
@@ -20,7 +20,7 @@
                         @for (attr of cat.attrs; track attr) {
                         @if (attrHasNonZero(attr)) {
                         <tr>
-                            <td class="font-semibold p-0 text-xs">{{ labelMap[attr] || attr }}</td>
+                            <td class="font-semibold p-0 text-xs pl-1">{{ labelMap[attr] || attr }}</td>
                             @for (p of orderedPlayers; track p.id) {
                             <td class="text-center" [class.font-bold]="isAttrMax(attr, p.id)"
                                 [class.text-violet-400]="isAttrMax(attr, p.id)">{{ formatStat(attr, statFor(p.id,
