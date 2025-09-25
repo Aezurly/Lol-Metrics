@@ -1,10 +1,44 @@
 {
-    "cSpell.words": [
-        "plugin"
-    ],
-    "workbench.colorCustomizations": {
-        "activityBar.background": "#29104b50",
-        "titleBar.activeBackground": "#3b166950",
-        "titleBar.activeForeground": "#FEFBFA"
+  "cSpell.words": [
+    "Kdas",
+    "penta",
+    "quadra",
+    "plugin",
+    "matchs",
+    "ccing",
+    "puuid",
+    "VSPM",
+    "datas"
+  ],
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#29104b50",
+    "titleBar.activeBackground": "#3b166950",
+    "titleBar.activeForeground": "#FEFBFA"
+  },
+  "files.autoSave": "afterDelay",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "eslint.options": {
+    "overrideConfig": {
+      "rules": {
+        "prettier/prettier": "off",
+        "no-unsafe-finally": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-return": "off"
+      }
     }
+  }
 }

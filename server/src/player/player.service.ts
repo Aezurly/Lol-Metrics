@@ -1,4 +1,13 @@
-import { Player, Match, Role, PlayerStat } from '@common/interfaces/match';
+import {
+  Player,
+  Match,
+  Role,
+  PlayerStat,
+  CombatStats,
+  DamageStats,
+  VisionStats,
+  IncomeStats,
+} from '@common/interfaces/match';
 import { Injectable } from '@nestjs/common';
 import { DataStoreService } from '../data-store/data-store.service';
 import { TeamService } from '../team/team.service';
@@ -74,8 +83,8 @@ export class PlayerService {
   ): void {
     player.stats.totalTimePlayed += match.duration;
     const teamPlayersInMatch: string[] = Object.entries(match.stats)
-      .filter(([_, p]) => p.teamSideNumber === teamSideNumber)
-      .map(([playerId, _]) => playerId);
+      .filter(([, p]) => p.teamSideNumber === teamSideNumber)
+      .map(([playerId]) => playerId);
 
     const totalTeamKills = teamPlayersInMatch.reduce((totalKills, playerId) => {
       const playerStats = match.stats[playerId];
@@ -92,8 +101,8 @@ export class PlayerService {
 
   private updateCombatAndDamageStats(
     player: Player,
-    combat: any,
-    damage: any,
+    combat: CombatStats,
+    damage: DamageStats,
   ): void {
     player.stats.totalKills += combat.kills || 0;
     player.stats.totalDeaths += combat.deaths || 0;
@@ -103,14 +112,15 @@ export class PlayerService {
 
   private updateVisionAndIncomeStats(
     player: Player,
-    vision: any,
-    income: any,
+    vision: VisionStats,
+    income: IncomeStats,
   ): void {
     player.stats.totalVisionScore += vision.visionScore || 0;
-    player.stats.totalControlWardsPurchased += vision.controlWardPurchased;
+    player.stats.totalControlWardsPurchased! +=
+      vision.controlWardPurchased || 0;
     player.stats.totalGoldEarned += income.goldEarned || 0;
     player.stats.totalMinionsKilled +=
-      income.totalMinionsKilled + income.neutralMinionsKilled || 0;
+      (income.totalMinionsKilled ?? 0) + (income.neutralMinionsKilled ?? 0);
   }
 
   private createPlayerStat(): PlayerStat {

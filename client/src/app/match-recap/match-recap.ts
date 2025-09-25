@@ -70,7 +70,6 @@ export class MatchRecapComponent {
   getPerSideStat(side: number): PerSideStat | undefined {
     if (!this.match) return;
     const s = this.matchsService.getPerSideStat(side);
-    console.log(s);
     return s;
   }
 

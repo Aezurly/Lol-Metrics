@@ -70,7 +70,7 @@ export class StatsNormalizerService {
         visionScore: toNum(participant['VISION_SCORE']),
         wardsPlaced: toNum(participant['WARD_PLACED']),
         wardsKilled: toNum(participant['WARD_KILLED']),
-        controlWardPurchased: optNum(participant['WARD_PLACED_DETECTOR']),
+        controlWardPurchased: toNum(participant['WARD_PLACED_DETECTOR']),
       },
       income: {
         goldEarned: toNum(participant['GOLD_EARNED']),

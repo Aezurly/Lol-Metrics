@@ -3,6 +3,7 @@ import { PlayerService } from '../services/player/player.service';
 import Chart from 'chart.js/auto';
 import { ChartType } from 'chart.js/auto';
 import { ActivatedRoute } from '@angular/router';
+import { title } from 'process';
 
 @Component({
   selector: 'app-radar-player-chart',
@@ -27,6 +28,7 @@ export class RadarPlayerChart implements OnInit {
       elements: {
         line: {
           borderWidth: 3,
+          borderColor: '#ccc3',
         },
       },
       scales: {
@@ -35,6 +37,7 @@ export class RadarPlayerChart implements OnInit {
           max: 100,
           ticks: {
             stepSize: 20,
+            backdropColor: 'transparent',
           },
         },
       },
@@ -68,8 +71,17 @@ export class RadarPlayerChart implements OnInit {
   }
 
   ngOnInit(): void {
-    this.config.data = this.radarData;
+    this.updateData();
     this.chart = new Chart('radarChart', this.config);
+  }
+
+  updateData(): void {
+    const savedTheme = localStorage.getItem('theme');
+    // this.config.options.plugins!.customCanvasBackgroundColor!.color =
+    //   savedTheme === 'dark' ? '#ccc' : '#fff';
+    console.log(this.config, savedTheme);
+    this.config.data = this.radarData;
+    this.chart?.update();
   }
 
   get radarData(): any {
