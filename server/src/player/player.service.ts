@@ -107,6 +107,7 @@ export class PlayerService {
     income: any,
   ): void {
     player.stats.totalVisionScore += vision.visionScore || 0;
+    player.stats.totalControlWardsPurchased += vision.controlWardPurchased;
     player.stats.totalGoldEarned += income.goldEarned || 0;
     player.stats.totalMinionsKilled +=
       income.totalMinionsKilled + income.neutralMinionsKilled || 0;
@@ -121,6 +122,7 @@ export class PlayerService {
       totalAssists: 0,
       totalDamageDealt: 0,
       totalVisionScore: 0,
+      totalControlWardsPurchased: 0,
       totalGoldEarned: 0,
       totalMinionsKilled: 0,
       totalTimePlayed: 0,

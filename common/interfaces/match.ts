@@ -55,6 +55,7 @@ export interface PlayerStat {
   totalAssists: number;
   totalDamageDealt: number;
   totalVisionScore: number;
+  totalControlWardsPurchased?: number;
   totalGoldEarned: number;
   totalMinionsKilled: number;
   totalTimePlayed: number;
