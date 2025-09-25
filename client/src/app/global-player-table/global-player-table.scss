@@ -51,6 +51,17 @@ table {
     background: var(--color-secondary, oklch(var(--b1) / 1));
     min-width: 200px;
     box-shadow: 2px 0 5px -2px rgba(0, 0, 0, 0.1);
+    transition: 0.5s ease;
+  }
+
+  .button {
+    cursor: pointer;
+    transition: color 0.2s ease;
+    text-shadow: 0 1px oklch(100% 0 0 / calc(var(--depth) * 0.15));
+
+    &:hover {
+      box-shadow: 0 0 0 5px var(--color-secondary, oklch(var(--p) / 1)) inset;
+    }
   }
 
   /* Special handling for the sticky column in header - needs higher z-index */
