@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Player, PlayerStat } from '@common/interfaces/match';
 import { PlayerManagerService } from './player-manager.service';
 import { TeamsService } from '../teams/teams.service';
+import { PlayerPerMatchStatService } from './player-per-match-stat.service';
 
 export const PERFECT_KDA_VALUE = Infinity;
 
@@ -9,6 +10,7 @@ export const PERFECT_KDA_VALUE = Infinity;
 export class PlayerStatService {
   private readonly playerManager = inject(PlayerManagerService);
   private readonly teamsService = inject(TeamsService);
+  private readonly playerPerMatchStat = inject(PlayerPerMatchStatService);
 
   getPlayerById(id: string) {
     return this.playerManager.getPlayerById(id);
@@ -18,8 +20,14 @@ export class PlayerStatService {
     return this.playerManager.getAllPlayers();
   }
 
-  getKDA(player: Player): string {
-    const stats: PlayerStat = player.stats;
+  getPlayerStats(player: Player, matchesId?: string[]): PlayerStat {
+    return matchesId
+      ? this.playerPerMatchStat.getPlayerStatForMatches(player, matchesId)
+      : player.stats;
+  }
+
+  getKDA(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
     if (stats.totalDeaths === 0) {
       return 'Perfect KDA';
     }
@@ -27,8 +35,8 @@ export class PlayerStatService {
     return kda.toFixed(2);
   }
 
-  getKDAValue(player: Player): number {
-    const stats: PlayerStat = player.stats;
+  getKDAValue(player: Player, matchesId?: string[]): number {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
     if (stats.totalDeaths === 0) {
       return stats.totalKills + stats.totalAssists;
     }
@@ -59,121 +67,129 @@ export class PlayerStatService {
     return '';
   }
 
-  getTotalMinutesPlayed(player: Player): number {
-    return player.stats.totalTimePlayed / 1000 / 60;
+  getTotalMinutesPlayed(player: Player, matchesId?: string[]): number {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    return stats.totalTimePlayed / 1000 / 60;
   }
 
-  getCSPerMinute(player: Player): string {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
+  getCSPerMinute(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    const totalMinutes = this.getTotalMinutesPlayed(player, matchesId);
     if (totalMinutes === 0) return '0.00';
-    const csPerMin = player.stats.totalMinionsKilled / totalMinutes;
+    const csPerMin = stats.totalMinionsKilled / totalMinutes;
     return csPerMin.toFixed(2);
   }
 
-  getCSPerMinuteValue(player: Player): number {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    return totalMinutes === 0
-      ? 0
-      : player.stats.totalMinionsKilled / totalMinutes;
+  getCSPerMinuteValue(player: Player, matchesId?: string[]): number {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    const totalMinutes = this.getTotalMinutesPlayed(player, matchesId);
+    return totalMinutes === 0 ? 0 : stats.totalMinionsKilled / totalMinutes;
   }
 
-  getDamagePerMinute(player: Player): string {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
+  getDamagePerMinute(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    const totalMinutes = this.getTotalMinutesPlayed(player, matchesId);
     if (totalMinutes === 0) return '0.00';
-    const damagePerMin = player.stats.totalDamageDealt / totalMinutes;
+    const damagePerMin = stats.totalDamageDealt / totalMinutes;
     return damagePerMin.toFixed(0);
   }
 
-  getDamagePerMinuteValue(player: Player): number {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    return totalMinutes === 0
-      ? 0
-      : player.stats.totalDamageDealt / totalMinutes;
+  getDamagePerMinuteValue(player: Player, matchesId?: string[]): number {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    const totalMinutes = this.getTotalMinutesPlayed(player, matchesId);
+    return totalMinutes === 0 ? 0 : stats.totalDamageDealt / totalMinutes;
   }
 
-  getGoldPerMinute(player: Player): string {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
+  getGoldPerMinute(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    const totalMinutes = this.getTotalMinutesPlayed(player, matchesId);
     if (totalMinutes === 0) return '0.00';
-    const goldPerMin = player.stats.totalGoldEarned / totalMinutes;
+    const goldPerMin = stats.totalGoldEarned / totalMinutes;
     return goldPerMin.toFixed(0);
   }
 
-  getGoldPerMinuteValue(player: Player): number {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
-    return totalMinutes === 0 ? 0 : player.stats.totalGoldEarned / totalMinutes;
+  getGoldPerMinuteValue(player: Player, matchesId?: string[]): number {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    const totalMinutes = this.getTotalMinutesPlayed(player, matchesId);
+    return totalMinutes === 0 ? 0 : stats.totalGoldEarned / totalMinutes;
   }
 
-  getDamagePerGold(player: Player): string {
-    if (player.stats.totalGoldEarned === 0) return '0.00';
-    const damagePerGold =
-      player.stats.totalDamageDealt / player.stats.totalGoldEarned;
+  getDamagePerGold(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    if (stats.totalGoldEarned === 0) return '0.00';
+    const damagePerGold = stats.totalDamageDealt / stats.totalGoldEarned;
     return damagePerGold.toFixed(2);
   }
 
-  getDamagePerGoldValue(player: Player): number {
-    return player.stats.totalGoldEarned === 0
+  getDamagePerGoldValue(player: Player, matchesId?: string[]): number {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    return stats.totalGoldEarned === 0
       ? 0
-      : player.stats.totalDamageDealt / player.stats.totalGoldEarned;
+      : stats.totalDamageDealt / stats.totalGoldEarned;
   }
 
-  getKillParticipation(player: Player): string {
-    if (player.stats.totalTeamKills === 0) return '0.00%';
+  getKillParticipation(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    if (stats.totalTeamKills === 0) return '0.00%';
     const participation =
-      ((player.stats.totalKills + player.stats.totalAssists) /
-        player.stats.totalTeamKills) *
-      100;
+      ((stats.totalKills + stats.totalAssists) / stats.totalTeamKills) * 100;
     return participation.toFixed(1) + '%';
   }
 
-  getKillParticipationValue(player: Player): number {
-    return player.stats.totalTeamKills === 0
+  getKillParticipationValue(player: Player, matchesId?: string[]): number {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    return stats.totalTeamKills === 0
       ? 0
-      : ((player.stats.totalKills + player.stats.totalAssists) /
-          player.stats.totalTeamKills) *
-          100;
+      : ((stats.totalKills + stats.totalAssists) / stats.totalTeamKills) * 100;
   }
 
-  getVisionScorePerMinute(player: Player): string {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
+  getVisionScorePerMinute(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    const totalMinutes = this.getTotalMinutesPlayed(player, matchesId);
     if (totalMinutes === 0) return '0.00';
-    const visionPerMin = player.stats.totalVisionScore / totalMinutes;
+    const visionPerMin = stats.totalVisionScore / totalMinutes;
     return visionPerMin.toFixed(2);
   }
 
-  getVisionScorePerMinuteValue(player: Player): number {
-    const totalMinutes = this.getTotalMinutesPlayed(player);
+  getVisionScorePerMinuteValue(player: Player, matchesId?: string[]): number {
+    const totalMinutes = this.getTotalMinutesPlayed(player, matchesId);
     return totalMinutes === 0
       ? 0
       : player.stats.totalVisionScore / totalMinutes;
   }
 
-  getControlWardsPerGame(player: Player): string {
+  getControlWardsPerGame(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
     const totalGames = player.matchIds.length;
-    const total = player.stats.totalControlWardsPurchased ?? 0;
+    const total = stats.totalControlWardsPurchased ?? 0;
     if (totalGames === 0) return '0.00';
     return (total / totalGames).toFixed(2);
   }
 
-  getControlWardsPerGameValue(player: Player): number {
+  getControlWardsPerGameValue(player: Player, matchesId?: string[]): number {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
     const totalGames = player.matchIds.length;
-    const total = player.stats.totalControlWardsPurchased ?? 0;
+    const total = stats.totalControlWardsPurchased ?? 0;
     return totalGames === 0 ? 0 : total / totalGames;
   }
 
-  getWinRate(player: Player): string {
+  getWinRate(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
     const totalGames = player.matchIds.length;
     if (totalGames === 0) return '0.0%';
-    const winRate = (player.stats.wins / totalGames) * 100;
+    const winRate = (stats.wins / totalGames) * 100;
     return winRate.toFixed(1) + '%';
   }
 
-  getWinRateValue(player: Player): number {
+  getWinRateValue(player: Player, matchesId?: string[]): number {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
     const totalGames = player.matchIds.length;
-    return totalGames === 0 ? 0 : (player.stats.wins / totalGames) * 100;
+    return totalGames === 0 ? 0 : (stats.wins / totalGames) * 100;
   }
 
-  getMostPlayedChampion(player: Player): string {
-    const champions = player.stats.championPlayed;
+  getMostPlayedChampion(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    const champions = stats.championPlayed;
     if (Object.keys(champions).length === 0) return 'N/A';
 
     let mostPlayed = '';
@@ -189,8 +205,9 @@ export class PlayerStatService {
     return `${mostPlayed} (${maxGames})`;
   }
 
-  getMostPlayedChampionName(player: Player): string {
-    const champions = player.stats.championPlayed;
+  getMostPlayedChampionName(player: Player, matchesId?: string[]): string {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
+    const champions = stats.championPlayed;
     if (Object.keys(champions).length === 0) return '';
 
     let mostPlayed = '';
