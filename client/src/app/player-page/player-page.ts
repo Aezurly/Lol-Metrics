@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { PlayerManagerService } from '../services/player/player-manager.service';
 import { TeamsService } from '../services/teams/teams.service';
 import { PlayerStats } from '../player-stats/player-stats';
+import { ScrimsService } from '../services/scrims.service';
 
 @Component({
   selector: 'app-player-page',
@@ -12,10 +13,13 @@ import { PlayerStats } from '../player-stats/player-stats';
 })
 export class PlayerPage implements OnInit {
   playerName: string | null = null;
+  loading: boolean = true;
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly playerService: PlayerManagerService,
-    private readonly teamsService: TeamsService
+    private readonly teamsService: TeamsService,
+    private readonly scrimService: ScrimsService
   ) {
     this.route.params.subscribe((params) => {
       this.playerName = params['name'];
@@ -28,6 +32,16 @@ export class PlayerPage implements OnInit {
     if (!this.playerId) {
       this.playerService.refreshSummary();
     }
+
+    this.scrimService.loadScrims().subscribe({
+      next: () => {
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading scrims:', err);
+        this.loading = false;
+      },
+    });
   }
 
   get playerId(): string | null {

@@ -1,39 +1,49 @@
-<section class="w-full flex justify-around items-center my-6">
-    <div class="stats shadow">
-        <div class="stat">
-            <div class="stat-figure text-primary">
-                <i-lucide [img]="LandPlot" class="icon" [size]="36"></i-lucide>
-            </div>
-            <div class="stat-title">
-                <span class="stat-value text-primary">{{ stats.numberOfGames }}</span> Games Played
-            </div>
-            <div class="stat-desc">Out of <span class="text-primary">{{ totalGames }}</span> total games</div>
-        </div>
-
-        <div class="stat">
-            <div class="stat-figure text-accent">
-                <i-lucide [img]="Zap" class="icon" [size]="36"></i-lucide>
-            </div>
-            <div class="stat-value text-accent">{{stats.wins}}
-                <span class="text-neutral text-lg"> W - </span>
-                {{ stats.numberOfGames - stats.wins }}
-                <span class="text-neutral text-lg">L ({{ winRate }})</span>
-            </div>
-            <div class="stat-desc">Winrate</div>
-        </div>
-
-        <div class="stat">
-            <div class="stat-figure text-secondary">
-                <i-lucide [img]="Swords" class="icon" [size]="36"></i-lucide>
-            </div>
-            <div class="stat-value">{{stats.averageKDA}}
-                <span class="stat-title">KDA</span>
-            </div>
-            <div class="stat-desc">Ranked <span class="text-secondary">{{KDAranking}}</span>th out of
-                {{totalUniquePlayers}} players</div>
-        </div>
+<section class="w-full flex justify-around items-center my-6 flex-wrap">
+  <div class="stats shadow">
+    <div class="stat">
+      <div class="stat-figure text-primary">
+        <i-lucide [img]="LandPlot" class="icon" [size]="36"></i-lucide>
+      </div>
+      <div class="stat-title">
+        <span class="stat-value text-primary">{{ stats.numberOfGames }}</span>
+        Games Played
+      </div>
+      <div class="stat-desc">
+        Out of <span class="text-primary">{{ totalGames }}</span> total games
+      </div>
     </div>
-    <div class="radar-chart-container stats shadow p-6">
-        <app-radar-player-chart></app-radar-player-chart>
+
+    <div class="stat">
+      <div class="stat-figure text-accent">
+        <i-lucide [img]="Zap" class="icon" [size]="36"></i-lucide>
+      </div>
+      <div class="stat-value text-accent">
+        {{ stats.wins }}
+        <span class="text-neutral text-lg"> W - </span>
+        {{ stats.numberOfGames - stats.wins }}
+        <span class="text-neutral text-lg">L ({{ winRate }})</span>
+      </div>
+      <div class="stat-desc">Winrate</div>
     </div>
+
+    <div class="stat">
+      <div class="stat-figure text-secondary">
+        <i-lucide [img]="Swords" class="icon" [size]="36"></i-lucide>
+      </div>
+      <div class="stat-value">
+        {{ stats.averageKDA }}
+        <span class="stat-title">KDA</span>
+      </div>
+      <div class="stat-desc">
+        Ranked <span class="text-secondary">{{ KDAranking }}</span
+        >th out of {{ totalUniquePlayers }} players
+      </div>
+    </div>
+  </div>
+  <div class="radar-chart-container stats shadow p-6">
+    <app-radar-player-chart></app-radar-player-chart>
+  </div>
+  <div class="evolution-chart-container stats shadow p-6">
+    <app-player-evolution-chart></app-player-evolution-chart>
+  </div>
 </section>

@@ -3,6 +3,7 @@ import { LucideAngularModule, Swords, LandPlot, Zap } from 'lucide-angular';
 import { PlayerManagerService } from '../services/player/player-manager.service';
 import { PlayerStatService } from '../services/player/player-stat.service';
 import { RadarPlayerChart } from '../radar-player-chart/radar-player-chart';
+import { PlayerEvolutionChart } from '../player-evolution-chart/player-evolution-chart';
 
 export interface PlayerStatView {
   numberOfGames: number;
@@ -16,7 +17,7 @@ export interface PlayerStatView {
 
 @Component({
   selector: 'app-player-stats',
-  imports: [LucideAngularModule, RadarPlayerChart],
+  imports: [LucideAngularModule, RadarPlayerChart, PlayerEvolutionChart],
   templateUrl: './player-stats.html',
   styleUrl: './player-stats.scss',
 })

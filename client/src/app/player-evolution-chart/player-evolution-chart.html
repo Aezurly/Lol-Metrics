@@ -1,0 +1,16 @@
+<div class="card mb-4 p-4">
+  <div class="flex items-center justify-between mb-2">
+    <div>
+      <label for="periodSelect" class="mr-2">Period:</label>
+      <select id="periodSelect" (change)="onPeriodChange($event)">
+        <option value="week">Weekly</option>
+        <option value="month">Monthly</option>
+      </select>
+    </div>
+    <div>
+      <button class="btn btn-sm" (click)="updateData()">Refresh</button>
+    </div>
+  </div>
+
+  <canvas id="evolutionChart" aria-label="Player evolution chart"></canvas>
+</div>
