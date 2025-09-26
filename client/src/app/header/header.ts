@@ -1,14 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-header',
+  standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
 export class Header implements OnInit {
   isDarkTheme = false;
+
+  constructor(private readonly router: Router) {}
 
   ngOnInit(): void {
     // Check if we're in browser environment
@@ -27,6 +30,11 @@ export class Header implements OnInit {
   toggleTheme(): void {
     this.isDarkTheme = !this.isDarkTheme;
     this.applyTheme();
+  }
+
+  navigateTo(path: string): void {
+    console.log(`Navigating to ${path}`);
+    this.router.navigate([path]);
   }
 
   private applyTheme(): void {

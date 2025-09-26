@@ -4,6 +4,7 @@ import Chart from 'chart.js/auto';
 import { ChartType } from 'chart.js/auto';
 import { ActivatedRoute } from '@angular/router';
 import { title } from 'process';
+import { PlayerStatisticsService } from '../services/player/player-statistics.service';
 
 @Component({
   selector: 'app-radar-player-chart',
@@ -50,7 +51,8 @@ export class RadarPlayerChart implements OnInit {
 
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly playerService: PlayerService
+    private readonly playerService: PlayerService,
+    private readonly playerStatisticsService: PlayerStatisticsService
   ) {
     if (!this.playerId) {
       playerService.refreshSummary().then(() => {
@@ -76,7 +78,12 @@ export class RadarPlayerChart implements OnInit {
   }
 
   updateData(): void {
-    const savedTheme = localStorage.getItem('theme');
+    let savedTheme: string | null;
+    if (typeof window !== 'undefined' && window.localStorage) {
+      savedTheme = localStorage.getItem('theme');
+    } else {
+      savedTheme = 'light';
+    }
     // this.config.options.plugins!.customCanvasBackgroundColor!.color =
     //   savedTheme === 'dark' ? '#ccc' : '#fff';
     console.log(this.config, savedTheme);
@@ -85,7 +92,9 @@ export class RadarPlayerChart implements OnInit {
   }
 
   get radarData(): any {
-    const datas = this.playerService.getRadarData();
+    const datas = this.playerStatisticsService.getRadarData(
+      this.playerService.currentRadarPlayerId
+    );
     if (!datas) {
       console.warn('Radar data not found');
     }

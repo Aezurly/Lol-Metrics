@@ -131,3 +131,9 @@ export interface PlayerMatchData {
   income: IncomeStats;
   objectives: ObjectiveStats;
 }
+
+export interface PerChampionStats {
+  name: string;
+  count: number;
+  stats: PlayerStat;
+}

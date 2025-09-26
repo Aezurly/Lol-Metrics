@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CommunicationService } from '../services/communication/communication.service';
 import { PlayerService } from '../services/player/player.service';
+import { PlayerStatisticsService } from '../services/player/player-statistics.service';
 import { TeamsService } from '../services/teams/teams.service';
 import { Player } from '@common/interfaces/match';
 import { RouterLink } from '@angular/router';
@@ -26,12 +26,13 @@ export class GlobalPlayerTable implements OnInit {
   selectedTeamId: number | null = null;
 
   constructor(
-    private readonly communication: CommunicationService,
     private readonly playerService: PlayerService,
-    private readonly teamsService: TeamsService
+    private readonly teamsService: TeamsService,
+    private readonly playerStatisticsService: PlayerStatisticsService
   ) {}
 
   ngOnInit(): void {
+    console.log('GlobalPlayerTable initialized');
     this.loadData();
   }
 
@@ -70,59 +71,68 @@ export class GlobalPlayerTable implements OnInit {
   }
 
   protected getKDA(player: Player): string {
-    return this.playerService.getKDA(player);
+    return this.playerStatisticsService.getKDA(player);
   }
 
   protected getKDAValue(player: Player): number {
-    return this.playerService.getKDAValue(player);
+    return this.playerStatisticsService.getKDAValue(player);
   }
 
   protected getKDAColorClass(player: Player): string {
-    return this.playerService.getKDAColorClass(player, this.players);
+    return this.playerStatisticsService.getKDAColorClass(player, this.players);
   }
 
   protected getTotalMinutesPlayed(player: Player): number {
-    return this.playerService.getTotalMinutesPlayed(player);
+    return this.playerStatisticsService.getTotalMinutesPlayed(player);
   }
 
   protected getCSPerMinute(player: Player): string {
-    return this.playerService.getCSPerMinute(player);
+    return this.playerStatisticsService.getCSPerMinute(player);
   }
 
   protected getDamagePerMinute(player: Player): string {
-    return this.playerService.getDamagePerMinute(player);
+    return this.playerStatisticsService.getDamagePerMinute(player);
   }
 
   protected getGoldPerMinute(player: Player): string {
-    return this.playerService.getGoldPerMinute(player);
+    return this.playerStatisticsService.getGoldPerMinute(player);
   }
 
   protected getDamagePerGold(player: Player): string {
-    return this.playerService.getDamagePerGold(player);
+    return this.playerStatisticsService.getDamagePerGold(player);
   }
 
   protected getKillParticipation(player: Player): string {
-    return this.playerService.getKillParticipation(player);
+    return this.playerStatisticsService.getKillParticipation(player);
   }
 
   protected getVisionScorePerMinute(player: Player): string {
-    return this.playerService.getVisionScorePerMinute(player);
+    return this.playerStatisticsService.getVisionScorePerMinute(player);
   }
 
   protected getControlWardsPerGame(player: Player): string {
-    return this.playerService.getControlWardsPerGame(player);
+    return this.playerStatisticsService.getControlWardsPerGame(player);
   }
 
   protected getWinRate(player: Player): string {
-    return this.playerService.getWinRate(player);
+    return this.playerStatisticsService.getWinRate(player);
   }
 
   protected getMostPlayedChampion(player: Player): string {
-    return this.playerService.getMostPlayedChampion(player);
+    return this.playerStatisticsService.getMostPlayedChampionName(player);
   }
 
-  protected getRoleBadgeClass(role: string): string {
-    return this.playerService.getRoleBadgeClass(role);
+  getRoleBadgeClass(role: string): string {
+    const roleMap: { [key: string]: string } = {
+      TOP: 'badge-warning',
+      JGL: 'badge-primary',
+      MID: 'badge-info',
+      ADC: 'badge-error',
+      SUP: 'badge-secondary',
+    };
+
+    const normalizedRole = role.toUpperCase();
+    return roleMap[normalizedRole] || 'badge-neutral';
   }
 
   protected getTeamName(player: Player): string {
@@ -168,7 +178,7 @@ export class GlobalPlayerTable implements OnInit {
   }
 
   private getSortValue(player: Player, column: string): number | string {
-    return this.playerService.getSortValue(player, column);
+    return this.getSortValue(player, column);
   }
 
   protected isSorted(column: string): boolean {
