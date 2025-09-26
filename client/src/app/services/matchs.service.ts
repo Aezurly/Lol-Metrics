@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Match, Role } from '@common/interfaces/match';
-import { PlayerService } from './player/player.service';
+import { PlayerManagerService } from './player/player-manager.service';
 
 export interface MatchRecap {
   id: string;
@@ -40,7 +40,7 @@ export class MatchsService {
   matchs: Record<string, Match> = {};
   selectedMatchId: string | null = null;
 
-  constructor(private readonly playerService: PlayerService) {}
+  constructor(private readonly playerService: PlayerManagerService) {}
 
   getMatchById(id: string): Match | undefined {
     return this.matchs[id];

@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TeamsService } from './teams/teams.service';
 import { MatchsService } from './matchs.service';
-import { PlayerService } from './player/player.service';
+import { PlayerManagerService } from './player/player-manager.service';
 
 export interface Scrim {
   date: Date;
@@ -39,7 +39,7 @@ export class ScrimsService {
     private readonly communication: CommunicationService,
     private readonly teamsService: TeamsService,
     private readonly matchsService: MatchsService,
-    private readonly playerService: PlayerService
+    private readonly playerService: PlayerManagerService
   ) {}
 
   /**

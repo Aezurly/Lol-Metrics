@@ -1,9 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { PlayerService } from '../services/player/player.service';
-import Chart from 'chart.js/auto';
-import { ChartType } from 'chart.js/auto';
+import { Component, OnInit } from '@angular/core';
+import { PlayerManagerService } from '../services/player/player-manager.service';
+import { PlayerStatService } from '../services/player/player-stat.service';
+import Chart, { ChartType } from 'chart.js/auto';
 import { ActivatedRoute } from '@angular/router';
-import { title } from 'process';
 
 @Component({
   selector: 'app-radar-player-chart',
@@ -45,47 +44,39 @@ export class RadarPlayerChart implements OnInit {
   };
 
   get playerId(): string | null {
-    return this.playerService.currentRadarPlayerId;
+    return this.playerManager.currentRadarPlayerId;
   }
 
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly playerService: PlayerService
-  ) {
+    private readonly playerManager: PlayerManagerService,
+    private readonly playerStat: PlayerStatService
+  ) {}
+
+  ngOnInit(): void {
     if (!this.playerId) {
-      playerService.refreshSummary().then(() => {
+      this.playerManager.refreshSummary().then(() => {
         this.route.params.subscribe((params) => {
           const playerName = params['name'];
-
-          const playerId = this.playerService.getPlayerByName(playerName)?.uid;
-          console.log(playerName, playerId);
-          this.playerService.currentRadarPlayerId = playerId || null;
-          this.config.data = this.radarData;
-          this.chart?.update();
+          const playerId = this.playerManager.getPlayerByName(playerName)?.uid;
+          this.playerManager.currentRadarPlayerId = playerId || null;
+          this.updateData();
+          this.chart = new Chart('radarChart', this.config);
         });
       });
     } else {
-      this.config.data = this.radarData;
-      this.chart?.update();
+      this.updateData();
+      this.chart = new Chart('radarChart', this.config);
     }
   }
 
-  ngOnInit(): void {
-    this.updateData();
-    this.chart = new Chart('radarChart', this.config);
-  }
-
   updateData(): void {
-    const savedTheme = localStorage.getItem('theme');
-    // this.config.options.plugins!.customCanvasBackgroundColor!.color =
-    //   savedTheme === 'dark' ? '#ccc' : '#fff';
-    console.log(this.config, savedTheme);
     this.config.data = this.radarData;
     this.chart?.update();
   }
 
   get radarData(): any {
-    const datas = this.playerService.getRadarData();
+    const datas = this.playerStat.getRadarData();
     if (!datas) {
       console.warn('Radar data not found');
     }

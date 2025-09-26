@@ -1,187 +1,36 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
-import { Player, PlayerStat, Role, Team } from '@common/interfaces/match';
+import { Player, PlayerStat, Role } from '@common/interfaces/match';
+import { PlayerManagerService } from './player-manager.service';
 import { TeamsService } from '../teams/teams.service';
-import { CommunicationService } from '../communication/communication.service';
 
-// Minimal view representation used by the PlayerStats component
-interface PlayerStatView {
-  numberOfGames: number;
-  wins: number;
-  averageKDA: string;
-  averageCS: number;
-  averageGold: number;
-  averageDamage: number;
-  averageVisionScore: number;
-}
+export const RADAR_CHART_LABELS = [
+  'KDA',
+  'DPM',
+  'KP',
+  'GPM',
+  'Dmg/Gold',
+  'VS/m',
+  'CS/m',
+];
 
-@Injectable({
-  providedIn: 'root',
-})
-export class PlayerService {
-  currentRadarPlayerId: string | null = null;
-  private static readonly PERFECT_KDA_VALUE = Infinity;
-  private static readonly PERCENTILE_25 = 0.25;
-  private static readonly PERCENTILE_75 = 0.75;
+export const PRIMARY_COLOR = '#00d8be';
+export const ACCENT_COLOR = '#b6a0fd';
 
+export const PERFECT_KDA_VALUE = Infinity;
+export const PERCENTILE_25 = 0.25;
+export const PERCENTILE_75 = 0.75;
+
+@Injectable({ providedIn: 'root' })
+export class PlayerStatService {
+  private readonly playerManager = inject(PlayerManagerService);
   private readonly teamsService = inject(TeamsService);
-  private readonly communicationService = inject(CommunicationService);
 
-  // Internal observable keeping current summary players
-  private readonly players$ = new BehaviorSubject<Player[]>([]);
-
-  /** Read-only observable for components that want to react to player updates */
-  get playersObservable() {
-    return this.players$.asObservable();
+  getPlayerById(id: string) {
+    return this.playerManager.getPlayerById(id);
   }
 
-  private readonly playerMap: Map<string, Player> = new Map();
-
-  updatePlayerMap(players: Player[]): void {
-    this.playerMap.clear();
-    players.forEach((player) => {
-      this.playerMap.set(player.uid, player);
-    });
-  }
-
-  /**
-   * Initialize service by fetching the application summary and populating
-   * the teams mapping and internal player map. This uses the same API as
-   * the rest of the app (`CommunicationService.getSummary`).
-   */
-  async initializeFromSummary(): Promise<void> {
-    const summary = await firstValueFrom(
-      this.communicationService.getSummary()
-    );
-    // update teams mapping so TeamsService can resolve names
-    this.teamsService.updateTeamMap(summary.teamList);
-    // update players
-    this.updatePlayerMap(summary.playerList);
-    this.players$.next(summary.playerList);
-  }
-
-  /**
-   * Force refresh summary and update internal state. Returns the fetched players.
-   */
-  async refreshSummary(): Promise<Player[]> {
-    const summary = await firstValueFrom(
-      this.communicationService.getSummary()
-    );
-    // Update player map first
-    this.updatePlayerMap(summary.playerList);
-    this.players$.next(summary.playerList);
-
-    // If server provided teamList, use it. Otherwise derive teams from players.
-    let teamsToUse: Team[] = [];
-    if (summary.teamList && summary.teamList.length > 0) {
-      teamsToUse = summary.teamList;
-    } else {
-      const ids = Array.from(
-        new Set(
-          summary.playerList
-            .map((p) => p.teamId)
-            .filter((id): id is number => id !== undefined && id !== null)
-        )
-      );
-      teamsToUse = ids.map((id) => ({
-        id,
-        name: this.teamsService.getTeamName(id),
-        playersIds: [],
-        matchIds: [],
-      }));
-    }
-
-    this.teamsService.updateTeamMap(teamsToUse);
-
-    return summary.playerList;
-  }
-
-  /**
-   * Ask the server to reload teams+matches and then refresh the local summary.
-   * This centralizes reload logic so components don't need to call CommunicationService directly.
-   */
-  async reloadAllAndRefresh(): Promise<Player[]> {
-    // trigger server side reload
-    await firstValueFrom(this.communicationService.reloadAll());
-    // refresh local state from updated summary
-    return this.refreshSummary();
-  }
-
-  getPlayerById(playerId: string): Player | undefined {
-    return this.playerMap.get(playerId);
-  }
-
-  getPlayerByName(playerName: string): Player | undefined {
-    const lowerName = playerName.toLowerCase();
-    return Array.from(this.playerMap.values()).find(
-      (player) => player.name.toLowerCase() === lowerName
-    );
-  }
-
-  getAllPlayers(): Player[] {
-    return Array.from(this.playerMap.values());
-  }
-
-  /**
-   * Build the PlayerStatView for a given player id using the current player map.
-   * Returns undefined if the player is not found.
-   */
-  getPlayerStatView(playerId: string): {
-    stats: PlayerStatView | undefined;
-    player?: Player;
-  } {
-    const player = this.getPlayerById(playerId);
-    if (!player) return { stats: undefined };
-
-    const numberOfGames = player.matchIds.length;
-    const wins = player.stats.wins;
-    const averageKDA = this.getKDA(player);
-    const averageCS = Math.round(this.getCSPerMinuteValue(player) * 10) / 10;
-    const averageGold =
-      Math.round(this.getGoldPerMinuteValue(player) * 10) / 10;
-    const averageDamage =
-      Math.round(this.getDamagePerMinuteValue(player) * 10) / 10;
-    const averageVisionScore =
-      Math.round(this.getVisionScorePerMinuteValue(player) * 10) / 10;
-
-    const stats: PlayerStatView = {
-      numberOfGames,
-      wins,
-      averageKDA,
-      averageCS,
-      averageGold,
-      averageDamage,
-      averageVisionScore,
-    };
-
-    return { stats, player };
-  }
-
-  /** Total games across all matches (sum of matchIds length on players is not ideal but useful here) */
-  getTotalGames(): number {
-    // Prefer using match list if available via summary: here we approximate by summing unique match ids across players
-    const matches = new Set<string>();
-    this.getAllPlayers().forEach((p) =>
-      p.matchIds.forEach((m) => matches.add(m))
-    );
-    return matches.size;
-  }
-
-  /** Return rank of player's KDA among all players (1-based, 1 = best). Returns undefined if player not found. */
-  getKDAranking(playerId: string): number | undefined {
-    const player = this.getPlayerById(playerId);
-    if (!player) return undefined;
-    const all = this.getAllPlayers().map((p) => ({
-      id: p.uid,
-      kda: this.getKDAValue(p),
-    }));
-    all.sort((a, b) => b.kda - a.kda); // descending
-    const idx = all.findIndex((x) => x.id === playerId);
-    return idx >= 0 ? idx + 1 : undefined;
-  }
-
-  getTotalUniquePlayers(): number {
-    return this.getAllPlayers().length;
+  getAllPlayers() {
+    return this.playerManager.getAllPlayers();
   }
 
   getKDA(player: Player): string {
@@ -201,11 +50,6 @@ export class PlayerService {
     return (stats.totalKills + stats.totalAssists) / stats.totalDeaths;
   }
 
-  /**
-   * Determine a color class for a player's KDA compared to the current
-   * known player pool. If `players` is omitted, uses the internal player list
-   * populated from the last summary fetch.
-   */
   getKDAColorClass(player: Player, players?: Player[]): string {
     const pool = players ?? this.getAllPlayers();
     const kdaValue = this.getKDAValue(player);
@@ -213,12 +57,8 @@ export class PlayerService {
 
     if (allKDAs.length === 0) return '';
 
-    const percentile25Index = Math.floor(
-      allKDAs.length * PlayerService.PERCENTILE_25
-    );
-    const percentile75Index = Math.floor(
-      allKDAs.length * PlayerService.PERCENTILE_75
-    );
+    const percentile25Index = Math.floor(allKDAs.length * PERCENTILE_25);
+    const percentile75Index = Math.floor(allKDAs.length * PERCENTILE_75);
 
     const percentile25 =
       allKDAs[Math.min(percentile25Index, allKDAs.length - 1)];
@@ -419,7 +259,9 @@ export class PlayerService {
   }
 
   getRadarData(): unknown {
-    const player = this.getPlayerById(this.currentRadarPlayerId || '');
+    const player = this.getPlayerById(
+      this.playerManager.currentRadarPlayerId || ''
+    );
     if (!player) return null;
     const role = player.role as Role;
     let radarLabels = RADAR_CHART_LABELS;
@@ -500,10 +342,6 @@ export class PlayerService {
     ];
   }
 
-  /**
-   * Scale a raw metric value to 0..100 given bounds where 100 maps to max and 0 to min.
-   * If max === min, returns 100 when value === max, otherwise 0. Bounds expected to be finite.
-   */
   private scaleToPercent(value: number, min: number, max: number): number {
     if (max === min) {
       return value === max ? 100 : 0;
@@ -523,16 +361,3 @@ export class PlayerService {
     });
   }
 }
-
-export const RADAR_CHART_LABELS = [
-  'KDA',
-  'DPM',
-  'KP',
-  'GPM',
-  'Dmg/Gold',
-  'VS/m',
-  'CS/m',
-];
-
-export const PRIMARY_COLOR = '#00d8be';
-export const ACCENT_COLOR = '#b6a0fd';

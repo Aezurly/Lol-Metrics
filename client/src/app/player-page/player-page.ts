@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PlayerService } from '../services/player/player.service';
+import { PlayerManagerService } from '../services/player/player-manager.service';
 import { TeamsService } from '../services/teams/teams.service';
 import { PlayerStats } from '../player-stats/player-stats';
 
@@ -14,7 +14,7 @@ export class PlayerPage implements OnInit {
   playerName: string | null = null;
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly playerService: PlayerService,
+    private readonly playerService: PlayerManagerService,
     private readonly teamsService: TeamsService
   ) {
     this.route.params.subscribe((params) => {
