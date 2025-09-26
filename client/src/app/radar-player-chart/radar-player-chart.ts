@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PlayerManagerService } from '../services/player/player-manager.service';
-import { PlayerStatService } from '../services/player/player-stat.service';
+import { PlayerRadarService } from '../services/player/player-radar.service';
 import Chart, { ChartType } from 'chart.js/auto';
 import { ActivatedRoute } from '@angular/router';
 
@@ -50,7 +50,7 @@ export class RadarPlayerChart implements OnInit {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly playerManager: PlayerManagerService,
-    private readonly playerStat: PlayerStatService
+    private readonly playerRadar: PlayerRadarService
   ) {}
 
   ngOnInit(): void {
@@ -76,7 +76,7 @@ export class RadarPlayerChart implements OnInit {
   }
 
   get radarData(): any {
-    const datas = this.playerStat.getRadarData();
+    const datas = this.playerRadar.getRadarData();
     if (!datas) {
       console.warn('Radar data not found');
     }

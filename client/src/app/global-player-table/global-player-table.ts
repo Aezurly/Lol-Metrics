@@ -124,7 +124,16 @@ export class GlobalPlayerTable implements OnInit {
   }
 
   protected getRoleBadgeClass(role: string): string {
-    return this.playerStat.getRoleBadgeClass(role);
+    const roleMap: { [key: string]: string } = {
+      TOP: 'badge-warning',
+      JGL: 'badge-primary',
+      MID: 'badge-info',
+      ADC: 'badge-error',
+      SUP: 'badge-secondary',
+    };
+
+    const normalizedRole = role.toUpperCase();
+    return roleMap[normalizedRole] || 'badge-neutral';
   }
 
   protected getTeamName(player: Player): string {
