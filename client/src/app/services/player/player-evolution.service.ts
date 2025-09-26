@@ -3,10 +3,24 @@ import { PlayerStatService } from './player-stat.service';
 import { PlayerStat, Player } from '@common/interfaces/match';
 import { PlayerManagerService } from './player-manager.service';
 
+export interface RawMetrics {
+  kda: number;
+  dpm: number;
+  kp: number;
+  gpm: number;
+  dpg: number;
+  vspm: number;
+  cspm: number;
+}
+
 export interface PeriodPlayerStats {
   periodStart: Date;
   periodEnd: Date;
   stats: PlayerStat;
+  // raw metric values for the player for this period
+  raw: RawMetrics;
+  // optional role-average raw metrics for the period
+  roleAvgRaw?: RawMetrics;
 }
 
 @Injectable({
@@ -105,26 +119,107 @@ export class PlayerEvolutionService {
       const nextStart = nextStartFn(periodStart);
       const periodEnd = computePeriodEnd(periodStart, nextStart);
 
-      const matchesThis = dateIds
-        .filter(
-          (d) =>
-            d.date.getTime() >= periodStart.getTime() &&
-            d.date.getTime() <= periodEnd.getTime()
-        )
-        .map((d) => d.id);
+      const matchesThis = this.getMatchesInRange(
+        dateIds,
+        periodStart,
+        periodEnd
+      );
 
       if (matchesThis.length > 0) {
         const stats = this.playerStatService.getPlayerStats(
           player,
           matchesThis
         );
-        periods.push({ periodStart: new Date(periodStart), periodEnd, stats });
+        const raw = this.computeRawForMatches(player, matchesThis);
+        const roleAvgRaw = this.computeRoleAvgRawForPeriod(
+          player.role,
+          dateIds,
+          periodStart,
+          periodEnd
+        );
+
+        periods.push({
+          periodStart: new Date(periodStart),
+          periodEnd,
+          stats,
+          raw,
+          roleAvgRaw,
+        });
       }
 
       periodStart = nextStart;
     }
 
     return periods;
+  }
+
+  // --- helpers extracted for readability ---
+  private getMatchesInRange(
+    dateIds: { id: string; date: Date }[],
+    start: Date,
+    end: Date
+  ): string[] {
+    return dateIds
+      .filter(
+        (d) =>
+          d.date.getTime() >= start.getTime() &&
+          d.date.getTime() <= end.getTime()
+      )
+      .map((d) => d.id);
+  }
+
+  private computeRawForMatches(player: Player, matches: string[]): RawMetrics {
+    return {
+      kda: this.playerStatService.getKDAValue(player, matches),
+      dpm: this.playerStatService.getDamagePerMinuteValue(player, matches),
+      kp: this.playerStatService.getKillParticipationValue(player, matches),
+      gpm: this.playerStatService.getGoldPerMinuteValue(player, matches),
+      dpg: this.playerStatService.getDamagePerGoldValue(player, matches),
+      vspm: this.playerStatService.getVisionScorePerMinuteValue(
+        player,
+        matches
+      ),
+      cspm: this.playerStatService.getCSPerMinuteValue(player, matches),
+    };
+  }
+
+  private computeRoleAvgRawForPeriod(
+    role: any,
+    dateIds: { id: string; date: Date }[],
+    periodStart: Date,
+    periodEnd: Date
+  ): RawMetrics | undefined {
+    const rolePlayers = this.playerManager
+      .getAllPlayers()
+      .filter((p) => p.role === role);
+    const vals: RawMetrics[] = [];
+    for (const rp of rolePlayers) {
+      const rpMatches = this.getMatchesInRange(dateIds, periodStart, periodEnd);
+      if (rpMatches.length === 0) continue;
+      vals.push(this.computeRawForMatches(rp, rpMatches));
+    }
+    if (vals.length === 0) return undefined;
+    const sum = vals.reduce(
+      (acc, r) => ({
+        kda: acc.kda + r.kda,
+        dpm: acc.dpm + r.dpm,
+        kp: acc.kp + r.kp,
+        gpm: acc.gpm + r.gpm,
+        dpg: acc.dpg + r.dpg,
+        vspm: acc.vspm + r.vspm,
+        cspm: acc.cspm + r.cspm,
+      }),
+      { kda: 0, dpm: 0, kp: 0, gpm: 0, dpg: 0, vspm: 0, cspm: 0 } as RawMetrics
+    );
+    return {
+      kda: sum.kda / vals.length,
+      dpm: sum.dpm / vals.length,
+      kp: sum.kp / vals.length,
+      gpm: sum.gpm / vals.length,
+      dpg: sum.dpg / vals.length,
+      vspm: sum.vspm / vals.length,
+      cspm: sum.cspm / vals.length,
+    };
   }
 
   // date from id: YYYY-MM-DD-...

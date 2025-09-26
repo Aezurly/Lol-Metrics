@@ -118,7 +118,9 @@ export class PlayerPerMatchStatService {
       (aggregated.totalControlWardsPurchased ?? 0) +
       (playerData.vision?.controlWardPurchased ?? 0);
     aggregated.totalGoldEarned += playerData.income?.goldEarned ?? 0;
-    aggregated.totalMinionsKilled += playerData.income?.totalMinionsKilled ?? 0;
+    aggregated.totalMinionsKilled +=
+      (playerData.income?.totalMinionsKilled ?? 0) +
+      (playerData.income?.neutralMinionsKilled ?? 0);
 
     aggregated.totalTimePlayed += match.duration ?? 0;
 

@@ -152,10 +152,9 @@ export class PlayerStatService {
   }
 
   getVisionScorePerMinuteValue(player: Player, matchesId?: string[]): number {
+    const stats: PlayerStat = this.getPlayerStats(player, matchesId);
     const totalMinutes = this.getTotalMinutesPlayed(player, matchesId);
-    return totalMinutes === 0
-      ? 0
-      : player.stats.totalVisionScore / totalMinutes;
+    return totalMinutes === 0 ? 0 : stats.totalVisionScore / totalMinutes;
   }
 
   getControlWardsPerGame(player: Player, matchesId?: string[]): string {

@@ -4,6 +4,7 @@ import { PlayerManagerService } from '../services/player/player-manager.service'
 import { PlayerEvolutionService } from '../services/player/player-evolution.service';
 import { PlayerStatService } from '../services/player/player-stat.service';
 import { ActivatedRoute } from '@angular/router';
+import { Player } from '@common/interfaces/match';
 
 // Typed metric keys
 export type MetricKey = 'kda' | 'dpm' | 'kp' | 'gpm' | 'dpg' | 'vspm' | 'cspm';
@@ -27,6 +28,8 @@ export interface RawMetrics {
 export class PlayerEvolutionChart implements OnInit {
   public chart: any;
   public period: 'week' | 'month' = 'week';
+  // cached periods (from PlayerEvolutionService) containing raw metric values
+  private cachedPeriods: any[] = [];
   // Metric keys and typed metrics list
   public readonly metrics: { key: MetricKey; label: string }[] = [
     { key: 'kda', label: 'KDA' },
@@ -139,6 +142,17 @@ export class PlayerEvolutionChart implements OnInit {
   }
 
   buildConfigAndRender(): void {
+    // load periods into cache for tooltip lookup
+    const pid = this.playerId;
+    if (pid) {
+      this.cachedPeriods =
+        this.period === 'week'
+          ? this.playerEvolution.getPerWeekStats(pid)
+          : this.playerEvolution.getPerMonthStats(pid);
+    } else {
+      this.cachedPeriods = [];
+    }
+
     const series = this.buildSeries();
     const config = {
       type: 'line' as ChartType,
@@ -150,6 +164,36 @@ export class PlayerEvolutionChart implements OnInit {
         responsive: true,
         plugins: {
           legend: { position: 'top' as const },
+          tooltip: {
+            callbacks: {
+              label: (ctx: any) => {
+                const dsLabel: string = ctx.dataset.label || '';
+                const idx = ctx.dataIndex;
+                const metric = this.metrics.find((m) =>
+                  dsLabel.startsWith(m.label)
+                );
+                const isAvg = dsLabel.toLowerCase().includes('role avg');
+                if (metric && this.cachedPeriods?.[idx]) {
+                  const period = this.cachedPeriods[idx];
+                  const rawVal = isAvg
+                    ? period.roleAvgRaw?.[metric.key]
+                    : period.raw?.[metric.key];
+                  const pct = ctx.parsed?.y ?? ctx.parsed ?? 0;
+                  if (rawVal !== undefined && rawVal !== null) {
+                    const rawStr =
+                      typeof rawVal === 'number'
+                        ? Number(rawVal).toFixed(2)
+                        : String(rawVal);
+                    return `${ctx.dataset.label}: ${rawStr} (${Number(
+                      pct
+                    ).toFixed(0)}%)`;
+                  }
+                }
+                const y = ctx.parsed?.y ?? ctx.parsed ?? 0;
+                return `${ctx.dataset.label}: ${Number(y).toFixed(2)}%`;
+              },
+            },
+          },
         },
         scales: {
           x: { display: true },
@@ -183,7 +227,7 @@ export class PlayerEvolutionChart implements OnInit {
       };
     }
 
-    const player = this.playerManager.getPlayerById(pid);
+    const player: Player | undefined = this.playerManager.getPlayerById(pid);
     if (!player) {
       console.log('No player set for evolution chart');
       return {
@@ -198,8 +242,6 @@ export class PlayerEvolutionChart implements OnInit {
       this.period === 'week'
         ? this.playerEvolution.getPerWeekStats(pid)
         : this.playerEvolution.getPerMonthStats(pid);
-
-    console.log('Computed periods for player', player.name, periods);
 
     const labels = periods.map((p) => this.formatPeriodLabel(p.periodStart));
 
@@ -258,9 +300,11 @@ export class PlayerEvolutionChart implements OnInit {
   }
 
   private computeRawMetricsForPlayer(
-    player: any,
+    player: Player | undefined,
     matches: string[]
   ): Record<string, number> {
+    if (!player) return {};
+
     return {
       kda: this.playerStat.getKDAValue(player, matches),
       dpm: this.playerStat.getDamagePerMinuteValue(player, matches),
