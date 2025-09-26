@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Match, PlayerMatchData, Role } from '@common/interfaces/match';
 import {
-  MatchsService,
+  MatchesService,
   MatchRecap,
   PlayerRecap,
   PerSideStat,
-} from '../services/matchs.service';
+} from '../services/matches.service';
 import { TeamsService } from '../services/teams/teams.service';
 import { GameStatTable } from '../game-stat-table/game-stat-table';
 
@@ -34,20 +34,22 @@ export class MatchRecapComponent {
   protected statToCompare = StatsToCompare.DAMAGE;
 
   constructor(
-    public readonly matchsService: MatchsService,
+    public readonly matchesService: MatchesService,
     public readonly teamsService: TeamsService
   ) {}
 
   get match(): Match | undefined {
-    if (!this.matchsService.selectedMatchId) return undefined;
+    if (!this.matchesService.selectedMatchId) return undefined;
 
-    return this.matchsService.getMatchById(this.matchsService.selectedMatchId);
+    return this.matchesService.getMatchById(
+      this.matchesService.selectedMatchId
+    );
   }
 
   get recap(): MatchRecap | undefined {
     const m = this.match;
     if (!m) return undefined;
-    return this.matchsService.buildRecap(m);
+    return this.matchesService.buildRecap(m);
   }
 
   // rows 0..4 for 5 players per side
@@ -69,7 +71,7 @@ export class MatchRecapComponent {
 
   getPerSideStat(side: number): PerSideStat | undefined {
     if (!this.match) return;
-    const s = this.matchsService.getPerSideStat(side);
+    const s = this.matchesService.getPerSideStat(side);
     return s;
   }
 

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ScrimsService, ScrimView } from '../services/scrims.service';
 import { TeamsService } from '../services/teams/teams.service';
-import { MatchRecap, MatchsService } from '../services/matchs.service';
+import { MatchRecap, MatchesService } from '../services/matches.service';
 import { CommonModule } from '@angular/common';
 import { MatchRecapComponent } from '../match-recap/match-recap';
 @Component({
@@ -19,7 +19,7 @@ export class ScrimExplorer implements OnInit {
   constructor(
     private readonly scrimsService: ScrimsService,
     private readonly teamsService: TeamsService,
-    private readonly matchsService: MatchsService
+    private readonly matchesService: MatchesService
   ) {}
 
   ngOnInit(): void {
@@ -43,11 +43,11 @@ export class ScrimExplorer implements OnInit {
     const recaps = this.scrimsService.getMatchRecapForScrim(scrim);
     if (recaps.length > 0) this.scrimMatchsRecaps[scrim.dateIso] = recaps;
     this.selectedMatchId = this.scrimMatchsRecaps[scrim.dateIso][0]?.id || null;
-    this.matchsService.selectedMatchId = this.selectedMatchId;
+    this.matchesService.selectedMatchId = this.selectedMatchId;
   }
 
   protected selectMatch(matchId: string): void {
     this.selectedMatchId = matchId;
-    this.matchsService.selectedMatchId = matchId;
+    this.matchesService.selectedMatchId = matchId;
   }
 }

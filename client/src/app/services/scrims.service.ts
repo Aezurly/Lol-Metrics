@@ -6,11 +6,11 @@ import {
   Team,
   MATCH_ID_PARTS_NUMBER,
 } from '@common/interfaces/match';
-import type { MatchRecap } from './matchs.service';
+import type { MatchRecap } from './matches.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TeamsService } from './teams/teams.service';
-import { MatchsService } from './matchs.service';
+import { MatchesService } from './matches.service';
 import { PlayerManagerService } from './player/player-manager.service';
 
 export interface Scrim {
@@ -38,7 +38,7 @@ export class ScrimsService {
   constructor(
     private readonly communication: CommunicationService,
     private readonly teamsService: TeamsService,
-    private readonly matchsService: MatchsService,
+    private readonly matchesService: MatchesService,
     private readonly playerService: PlayerManagerService
   ) {}
 
@@ -58,7 +58,7 @@ export class ScrimsService {
           summary as AppSummaryView
         );
         this.summary = summary as AppSummaryView;
-        this.matchsService.matchs = this.summary.matchs;
+        this.matchesService.matchs = this.summary.matchs;
         this.scrimList = scrims;
         return scrims;
       })
@@ -331,7 +331,7 @@ export class ScrimsService {
   // Move match recap aggregation here so other components can reuse
   public getMatchRecapForScrim(scrim: ScrimView): MatchRecap[] {
     const recaps = scrim.matchIds
-      .map((id) => this.matchsService.getMatchRecapById(id))
+      .map((id) => this.matchesService.getMatchRecapById(id))
       .filter((m): m is MatchRecap => m !== undefined);
     return recaps;
   }

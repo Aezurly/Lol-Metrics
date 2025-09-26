@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatchsService } from '../services/matchs.service';
+import { MatchesService } from '../services/matches.service';
 import { Match, PlayerMatchData, Role } from '@common/interfaces/match';
 
 @Component({
@@ -9,12 +9,14 @@ import { Match, PlayerMatchData, Role } from '@common/interfaces/match';
   styleUrl: './game-stat-table.scss',
 })
 export class GameStatTable {
-  constructor(public readonly matchsService: MatchsService) {}
+  constructor(public readonly matchesService: MatchesService) {}
 
   get match(): Match | undefined {
-    if (!this.matchsService.selectedMatchId) return undefined;
+    if (!this.matchesService.selectedMatchId) return undefined;
 
-    return this.matchsService.getMatchById(this.matchsService.selectedMatchId);
+    return this.matchesService.getMatchById(
+      this.matchesService.selectedMatchId
+    );
   }
 
   /**
@@ -25,7 +27,7 @@ export class GameStatTable {
     const m = this.match;
     if (!m) return [];
 
-    // group players by side and role using the player stats and player service mapping from MatchsService.buildRecap
+    // group players by side and role using the player stats and player service mapping from matchesService.buildRecap
     const blue: Array<{ id: string; role: Role | string }> = [];
     const red: Array<{ id: string; role: Role | string }> = [];
 
@@ -67,11 +69,11 @@ export class GameStatTable {
     return [...blueFilled, ...redFilled];
   }
 
-  /** Return ordered players with id and name (uses MatchsService recap when available) */
+  /** Return ordered players with id and name (uses matchesService recap when available) */
   get orderedPlayers(): { id: string; name: string }[] {
     const ids = this.orderedPlayerIds;
-    const recap = this.matchsService.getMatchRecapById(
-      this.matchsService.selectedMatchId ?? ''
+    const recap = this.matchesService.getMatchRecapById(
+      this.matchesService.selectedMatchId ?? ''
     );
     const nameById: Record<string, string> = {};
     if (recap) {

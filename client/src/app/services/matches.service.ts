@@ -36,7 +36,7 @@ export interface PlayerRecap {
 @Injectable({
   providedIn: 'root',
 })
-export class MatchsService {
+export class MatchesService {
   matchs: Record<string, Match> = {};
   selectedMatchId: string | null = null;
 
