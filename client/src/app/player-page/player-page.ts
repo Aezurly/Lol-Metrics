@@ -64,4 +64,12 @@ export class PlayerPage implements OnInit {
     const player = this.playerService.getPlayerByName(this.playerName);
     return this.teamsService.getTeamName(player?.teamId);
   }
+
+  get teammatesNames(): string[] {
+    if (!this.playerName) return [];
+    const player = this.playerService.getPlayerByName(this.playerName);
+    // TODO: Implement real logic
+    const teammates: string[] = [];
+    return teammates;
+  }
 }
