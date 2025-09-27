@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import Chart, { ChartType } from 'chart.js/auto';
 import { PlayerManagerService } from '../services/player/player-manager.service';
 import { PlayerEvolutionService } from '../services/player/player-evolution.service';
@@ -32,7 +33,8 @@ interface SeriesResult {
   templateUrl: './player-evolution-chart.html',
   styleUrl: './player-evolution-chart.scss',
 })
-export class PlayerEvolutionChart implements OnInit {
+export class PlayerEvolutionChart implements OnInit, OnDestroy {
+  private chartRefreshSub?: Subscription;
   public chart: any;
   public period: 'week' | 'month' = 'week';
   // cached periods (from PlayerEvolutionService) containing raw metric values
@@ -64,6 +66,22 @@ export class PlayerEvolutionChart implements OnInit {
   }
 
   ngOnInit(): void {
+    this.chartRefreshSub = this.playerManager.chartRefresh$.subscribe(() => {
+      if (this.chart) {
+        this.updateData();
+      } else {
+        this.ensureInit();
+      }
+    });
+
+    this.ensureInit();
+  }
+
+  ngOnDestroy(): void {
+    this.chartRefreshSub?.unsubscribe();
+  }
+
+  private ensureInit(): void {
     if (!this.playerId) {
       this.playerManager.refreshSummary().then(() => {
         this.route.params.subscribe((params) => {

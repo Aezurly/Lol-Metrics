@@ -27,6 +27,8 @@ export class PlayerPage implements OnInit {
       this.playerName = params['name'];
       this.playerService.currentRadarPlayerId =
         this.playerService.getPlayerByName(this.playerName || '')?.uid || null;
+
+      this.playerService.pingChartRefresh();
     });
 
     if (!this.playerId) {
@@ -36,6 +38,7 @@ export class PlayerPage implements OnInit {
     this.scrimService.loadScrims().subscribe({
       next: () => {
         this.loading = false;
+        this.playerService.pingChartRefresh();
       },
       error: (err) => {
         console.error('Error loading scrims:', err);

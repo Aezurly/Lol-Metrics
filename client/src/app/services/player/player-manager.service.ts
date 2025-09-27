@@ -1,19 +1,20 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { Injectable, inject, signal, WritableSignal } from '@angular/core';
+import { BehaviorSubject, firstValueFrom, Subject } from 'rxjs';
 import { Player, Team } from '@common/interfaces/match';
 import { TeamsService } from '../teams/teams.service';
 import { CommunicationService } from '../communication/communication.service';
 
+export const chartRefreshTick: WritableSignal<number> = signal(0);
 @Injectable({
   providedIn: 'root',
 })
 export class PlayerManagerService {
   currentRadarPlayerId: string | null = null;
+  public readonly chartRefresh$ = new Subject<void>();
 
   private readonly teamsService = inject(TeamsService);
   private readonly communicationService = inject(CommunicationService);
 
-  // Internal observable keeping current summary players
   private readonly players$ = new BehaviorSubject<Player[]>([]);
 
   /** Read-only observable for components that want to react to player updates */
@@ -22,6 +23,11 @@ export class PlayerManagerService {
   }
 
   private readonly playerMap: Map<string, Player> = new Map();
+
+  pingChartRefresh(): void {
+    chartRefreshTick.update((v) => v + 1);
+    this.chartRefresh$.next();
+  }
 
   updatePlayerMap(players: Player[]): void {
     this.playerMap.clear();
@@ -128,7 +134,7 @@ export class PlayerManagerService {
   }
 
   getPlayerStatView(playerId: string): {
-    stats: any | undefined;
+    stats: any;
     player?: Player;
   } {
     const player = this.getPlayerById(playerId);

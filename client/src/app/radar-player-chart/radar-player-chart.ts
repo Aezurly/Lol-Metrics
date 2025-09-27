@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { PlayerManagerService } from '../services/player/player-manager.service';
 import { PlayerRadarService } from '../services/player/player-radar.service';
 import Chart, { ChartType } from 'chart.js/auto';
@@ -10,8 +11,9 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './radar-player-chart.html',
   styleUrl: './radar-player-chart.scss',
 })
-export class RadarPlayerChart implements OnInit {
+export class RadarPlayerChart implements OnInit, OnDestroy {
   public chart: any;
+  private chartRefreshSub?: Subscription;
 
   config = {
     type: 'radar' as ChartType,
@@ -54,6 +56,37 @@ export class RadarPlayerChart implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.chartRefreshSub = this.playerManager.chartRefresh$.subscribe(() => {
+      if (this.chart) {
+        this.updateData();
+      } else {
+        this.ensureInit();
+      }
+    });
+
+    this.ensureInit();
+
+    if (!this.playerId) {
+      this.playerManager.refreshSummary().then(() => {
+        this.route.params.subscribe((params) => {
+          const playerName = params['name'];
+          const playerId = this.playerManager.getPlayerByName(playerName)?.uid;
+          this.playerManager.currentRadarPlayerId = playerId || null;
+          this.updateData();
+          this.chart = new Chart('radarChart', this.config);
+        });
+      });
+    } else {
+      this.updateData();
+      this.chart = new Chart('radarChart', this.config);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.chartRefreshSub?.unsubscribe();
+  }
+
+  private ensureInit(): void {
     if (!this.playerId) {
       this.playerManager.refreshSummary().then(() => {
         this.route.params.subscribe((params) => {
