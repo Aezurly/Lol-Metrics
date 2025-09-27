@@ -1,5 +1,7 @@
-<section class="w-full grid justify-around items-center stats-grid">
-  <div class="stats shadow stats-overview-container">
+<section class="w-full grid justify-around items-center stats-grid my-6">
+  <div
+    class="stats card card-border shadow-sm stats-overview-container bg-base-300"
+  >
     <div class="stat">
       <div class="stat-figure text-primary">
         <i-lucide [img]="LandPlot" class="icon" [size]="36"></i-lucide>
@@ -40,10 +42,14 @@
       </div>
     </div>
   </div>
-  <div class="radar-chart-container stats shadow p-6">
+  <div
+    class="radar-chart-container stats card card-border shadow-sm p-6 bg-base-300"
+  >
     <app-radar-player-chart></app-radar-player-chart>
   </div>
-  <div class="evolution-chart-container stats shadow p-6">
+  <div
+    class="evolution-chart-container stats card card-border shadow-sm p-6 bg-base-300"
+  >
     <app-player-evolution-chart></app-player-evolution-chart>
   </div>
 </section>

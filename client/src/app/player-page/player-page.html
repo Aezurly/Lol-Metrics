@@ -1,6 +1,21 @@
-<section class="p-6">
+<section class="p-6 py-12 relative">
   <h1 class="text-5xl font-bold text-center">{{ playerName }}</h1>
-  <h2 class="text-xl text-center">{{ teamName }}</h2>
+  <div
+    class="card bg-base-100 card-border shadow-sm w-128 mx-auto p-2 absolute right-4 top-4"
+  >
+    <h2 class="card-title justify-center">{{ teamName }}</h2>
+    <div class="divider my-1 mb-2"></div>
+    <div class="flex items-center justify-center flex-wrap gap-1">
+      @for(teammateName of teammatesNames; track teammateName) {
+      <h3
+        class="btn btn-outline btn-secondary btn-sm"
+        [routerLink]="['/player', teammateName]"
+      >
+        {{ teammateName }}
+      </h3>
+      }
+    </div>
+  </div>
   @if(loading) {
   <div class="flex justify-center items-center h-64">
     <span class="loading loading-spinner loading-lg"></span>

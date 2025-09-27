@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PlayerManagerService } from '../services/player/player-manager.service';
 import { TeamsService } from '../services/teams/teams.service';
 import { PlayerStats } from '../player-stats/player-stats';
@@ -7,7 +7,7 @@ import { ScrimsService } from '../services/scrims.service';
 
 @Component({
   selector: 'app-player-page',
-  imports: [PlayerStats],
+  imports: [PlayerStats, RouterLink],
   templateUrl: './player-page.html',
   styleUrl: './player-page.scss',
 })
@@ -20,15 +20,15 @@ export class PlayerPage implements OnInit {
     private readonly playerService: PlayerManagerService,
     private readonly teamsService: TeamsService,
     private readonly scrimService: ScrimsService
-  ) {
+  ) {}
+
+  ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.playerName = params['name'];
       this.playerService.currentRadarPlayerId =
         this.playerService.getPlayerByName(this.playerName || '')?.uid || null;
     });
-  }
 
-  ngOnInit(): void {
     if (!this.playerId) {
       this.playerService.refreshSummary();
     }
@@ -68,8 +68,15 @@ export class PlayerPage implements OnInit {
   get teammatesNames(): string[] {
     if (!this.playerName) return [];
     const player = this.playerService.getPlayerByName(this.playerName);
-    // TODO: Implement real logic
-    const teammates: string[] = [];
-    return teammates;
+    const PlayerIds = this.teamsService.getTeamMembersIds(player?.teamId);
+    if (PlayerIds.length > 0) {
+      const teammates = PlayerIds.filter((id) => id !== player?.uid).map(
+        (id) => {
+          return this.playerService.getPlayerById(id)?.name || 'Unknown';
+        }
+      );
+      return teammates;
+    }
+    return [];
   }
 }

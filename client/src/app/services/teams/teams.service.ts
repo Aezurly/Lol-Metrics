@@ -5,7 +5,7 @@ import { Team } from '@common/interfaces/match';
   providedIn: 'root',
 })
 export class TeamsService {
-  private readonly teamMap: Map<number, string> = new Map();
+  private readonly teamMap: Map<number, Team> = new Map();
 
   /**
    * Updates the team mapping from the team list
@@ -14,7 +14,7 @@ export class TeamsService {
   updateTeamMap(teams: Team[]): void {
     this.teamMap.clear();
     teams.forEach((team) => {
-      this.teamMap.set(team.id, team.name);
+      this.teamMap.set(team.id, team);
     });
   }
 
@@ -27,7 +27,7 @@ export class TeamsService {
     if (teamId === undefined || teamId === null) {
       return 'No Team';
     }
-    return this.teamMap.get(teamId) || `Team ${teamId}`;
+    return this.teamMap.get(teamId)?.name || `Team ${teamId}`;
   }
 
   /**
@@ -35,10 +35,16 @@ export class TeamsService {
    * @returns Array of team objects
    */
   getAllTeams(): { id: number; name: string }[] {
-    return Array.from(this.teamMap.entries()).map(([id, name]) => ({
+    return Array.from(this.teamMap.entries()).map(([id, team]) => ({
       id,
-      name,
+      name: team?.name || `Team ${id}`,
     }));
+  }
+
+  getTeamMembersIds(teamId: number | undefined): string[] {
+    if (teamId === undefined) return [];
+    const team = this.teamMap.get(teamId);
+    return team?.playersIds || [];
   }
 
   /**
