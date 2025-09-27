@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Player, PlayerStat } from '@common/interfaces/match';
+import { Player, PlayerStat, Role } from '@common/interfaces/match';
 import { PlayerManagerService } from './player-manager.service';
 import { TeamsService } from '../teams/teams.service';
 import { PlayerPerMatchStatService } from './player-per-match-stat.service';
@@ -14,6 +14,44 @@ export class PlayerStatService {
 
   getPlayerById(id: string) {
     return this.playerManager.getPlayerById(id);
+  }
+
+  // Return a small map of raw metric values for a player using existing helpers
+  getRawMetricsForPlayer(player: Player): Record<string, number> {
+    return {
+      kda: this.getKDAValue(player),
+      dpm: this.getDamagePerMinuteValue(player),
+      kp: this.getKillParticipationValue(player),
+      gpm: this.getGoldPerMinuteValue(player),
+      dpg: this.getDamagePerGoldValue(player),
+      vspm: this.getVisionScorePerMinuteValue(player),
+      cspm: this.getCSPerMinuteValue(player),
+    };
+  }
+
+  // Compute per-role metric bounds (min/max) for the common metric keys
+  getRoleMetricBounds(
+    role: Role
+  ): Record<string, { min: number; max: number }> {
+    const players = this.getAllPlayers().filter((p) => p.role === role);
+    const rawMetrics = players.map((p) => this.getRawMetricsForPlayer(p));
+
+    const keys = ['kda', 'dpm', 'kp', 'gpm', 'dpg', 'vspm', 'cspm'];
+    const bounds: Record<string, { min: number; max: number }> = {} as any;
+
+    for (const key of keys) {
+      const vals = rawMetrics
+        .map((r) => r[key])
+        .filter((v) => Number.isFinite(v));
+      let min = vals.length ? Math.min(...vals) : 0;
+      let max = vals.length ? Math.max(...vals) : 0;
+      if (!isFinite(min)) min = 0;
+      if (!isFinite(max)) max = 0;
+      if (min === max && max !== 0) min = 0;
+      bounds[key] = { min, max };
+    }
+
+    return bounds;
   }
 
   getAllPlayers() {

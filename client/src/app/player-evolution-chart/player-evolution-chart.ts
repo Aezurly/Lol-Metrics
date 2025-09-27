@@ -19,6 +19,13 @@ export interface RawMetrics {
   cspm: number;
 }
 
+interface SeriesResult {
+  labels: string[];
+  playerSeries: Record<MetricKey, number[]>;
+  avgSeries: Record<MetricKey, number[]>;
+  playerName?: string | null;
+}
+
 @Component({
   selector: 'app-player-evolution-chart',
   imports: [],
@@ -75,7 +82,7 @@ export class PlayerEvolutionChart implements OnInit {
     // initialize selection defaults
     for (const m of this.metrics) {
       if (!this.selection[m.key])
-        this.selection[m.key] = { player: true, avg: true };
+        this.selection[m.key] = { player: true, avg: false };
     }
     this.buildConfigAndRender();
   }
@@ -84,6 +91,16 @@ export class PlayerEvolutionChart implements OnInit {
     const target = e.target as HTMLSelectElement | null;
     const value = target?.value ?? 'week';
     this.period = (value as 'week' | 'month') || 'week';
+    this.updateData();
+  }
+
+  showAverage(): void {
+    // If any avg is currently shown, hide all; otherwise show all.
+    const anyAvgVisible = this.metrics.some((m) => this.selection[m.key]?.avg);
+    for (const m of this.metrics) {
+      const cur = this.selection[m.key] || { player: true, avg: false };
+      this.selection[m.key] = { player: cur.player, avg: !anyAvgVisible };
+    }
     this.updateData();
   }
 
@@ -210,93 +227,117 @@ export class PlayerEvolutionChart implements OnInit {
     this.updateData();
   }
 
-  private buildSeries(): {
-    labels: string[];
-    playerSeries: Record<string, number[]>;
-    avgSeries: Record<string, number[]>;
-    playerName?: string | null;
-  } {
+  private buildSeries(): SeriesResult {
     const pid = this.playerId;
     if (!pid) {
       console.log('No player ID set for evolution chart');
-      return {
-        labels: [],
-        playerSeries: {},
-        avgSeries: {},
-        playerName: undefined,
-      };
+      return { labels: [], playerSeries: {} as any, avgSeries: {} as any };
     }
 
-    const player: Player | undefined = this.playerManager.getPlayerById(pid);
+    const player = this.playerManager.getPlayerById(pid);
     if (!player) {
       console.log('No player set for evolution chart');
-      return {
-        labels: [],
-        playerSeries: {},
-        avgSeries: {},
-        playerName: undefined,
-      };
+      return { labels: [], playerSeries: {} as any, avgSeries: {} as any };
     }
 
-    const periods =
-      this.period === 'week'
-        ? this.playerEvolution.getPerWeekStats(pid)
-        : this.playerEvolution.getPerMonthStats(pid);
-
+    const periods = this.getPeriodsForPlayer(pid);
     const labels = periods.map((p) => this.formatPeriodLabel(p.periodStart));
 
-    const roleBounds = this.computeRoleBounds(player.role);
+    const roleBounds = this.playerStat.getRoleMetricBounds(player.role as any);
+    const rolePlayers = this.getRolePlayers(player.role);
 
-    const playerSeries: Record<string, number[]> = {} as any;
-    const avgSeries: Record<string, number[]> = {} as any;
+    const { playerSeries, avgSeries } = this.initEmptySeries();
+
+    // build series values using extracted helpers
+    for (const p of periods) {
+      const rawPlayer = this.computeRawMetricsForPlayer(
+        player,
+        this.filterMatchIdsByRange(player.matchIds, p.periodStart, p.periodEnd)
+      );
+
+      const roleValsForPeriod = this.collectRoleValuesForPeriod(
+        rolePlayers,
+        p.periodStart,
+        p.periodEnd
+      );
+
+      this.appendPeriodValuesToSeries(
+        rawPlayer,
+        roleValsForPeriod,
+        roleBounds,
+        playerSeries,
+        avgSeries
+      );
+    }
+
+    return { labels, playerSeries, avgSeries, playerName: player.name };
+  }
+
+  // Helper: get periods for a given player id based on current period selection
+  private getPeriodsForPlayer(pid: string): any[] {
+    return this.period === 'week'
+      ? this.playerEvolution.getPerWeekStats(pid)
+      : this.playerEvolution.getPerMonthStats(pid);
+  }
+
+  // Helper: build an empty series container for all metrics
+  private initEmptySeries(): {
+    playerSeries: Record<MetricKey, number[]>;
+    avgSeries: Record<MetricKey, number[]>;
+  } {
+    const playerSeries = {} as Record<MetricKey, number[]>;
+    const avgSeries = {} as Record<MetricKey, number[]>;
     for (const m of this.metrics) {
       playerSeries[m.key] = [];
       avgSeries[m.key] = [];
     }
+    return { playerSeries, avgSeries };
+  }
 
-    const rolePlayers = this.playerManager
-      .getAllPlayers()
-      .filter((pl) => pl.role === player.role);
+  // Helper: return players that share the same role
+  private getRolePlayers(role: any): Player[] {
+    return this.playerManager.getAllPlayers().filter((p) => p.role === role);
+  }
 
-    periods.forEach((p) => {
-      const playerMatches = this.filterMatchIdsByRange(
-        player.matchIds,
-        p.periodStart,
-        p.periodEnd
-      );
-      const rawPlayer = this.computeRawMetricsForPlayer(player, playerMatches);
+  // Helper: collect raw metric values for all players of a role within a period
+  private collectRoleValuesForPeriod(
+    rolePlayers: Player[],
+    start: Date,
+    end: Date
+  ): Record<MetricKey, number[]> {
+    const roleValsForPeriod = {} as Record<MetricKey, number[]>;
+    for (const m of this.metrics) roleValsForPeriod[m.key] = [];
 
-      // collect role players' raw metrics for this period
-      const roleValsForPeriod: Record<string, number[]> = {} as any;
-      for (const m of this.metrics) roleValsForPeriod[m.key] = [];
-      for (const rp of rolePlayers) {
-        const rpMatches = this.filterMatchIdsByRange(
-          rp.matchIds,
-          p.periodStart,
-          p.periodEnd
-        );
-        if (rpMatches.length === 0) continue;
-        const rawRp = this.computeRawMetricsForPlayer(rp, rpMatches);
-        for (const m of this.metrics)
-          roleValsForPeriod[m.key].push(rawRp[m.key]);
-      }
+    for (const rp of rolePlayers) {
+      const rpMatches = this.filterMatchIdsByRange(rp.matchIds, start, end);
+      if (rpMatches.length === 0) continue;
+      const rawRp = this.computeRawMetricsForPlayer(rp, rpMatches);
+      for (const m of this.metrics) roleValsForPeriod[m.key].push(rawRp[m.key]);
+    }
 
-      for (const m of this.metrics) {
-        const bounds = roleBounds[m.key];
-        const pRaw = rawPlayer[m.key] ?? 0;
-        const pPct = this.scaleToPercent(pRaw, bounds.min, bounds.max);
-        playerSeries[m.key].push(Math.round(pPct * 100) / 100);
+    return roleValsForPeriod;
+  }
 
-        const vals = roleValsForPeriod[m.key];
-        const avgRaw = vals.length
-          ? vals.reduce((a, b) => a + b, 0) / vals.length
-          : 0;
-        const avgPct = this.scaleToPercent(avgRaw, bounds.min, bounds.max);
-        avgSeries[m.key].push(Math.round(avgPct * 100) / 100);
-      }
-    });
+  private appendPeriodValuesToSeries(
+    rawPlayer: Record<string, number>,
+    roleValsForPeriod: Record<MetricKey, number[]>,
+    roleBounds: Record<string, { min: number; max: number }>,
+    playerSeries: Record<MetricKey, number[]>,
+    avgSeries: Record<MetricKey, number[]>
+  ) {
+    for (const m of this.metrics) {
+      const bounds = roleBounds[m.key];
+      const pRaw = rawPlayer[m.key] ?? 0;
+      const pPct = this.scaleToPercent(pRaw, bounds.min, bounds.max);
+      playerSeries[m.key].push(Math.round(pPct * 100) / 100);
 
-    return { labels, playerSeries, avgSeries, playerName: player.name };
+      const vals = roleValsForPeriod[m.key] || [];
+      const avgRaw = vals.length
+        ? vals.reduce((a, b) => a + b, 0) / vals.length
+        : 0;
+      const avgPct = this.scaleToPercent(avgRaw, bounds.min, bounds.max);
+      avgSeries[m.key].push(Math.round(avgPct * 100) / 100);
+    }
   }
 
   private computeRawMetricsForPlayer(
@@ -316,36 +357,7 @@ export class PlayerEvolutionChart implements OnInit {
     };
   }
 
-  private computeRoleBounds(
-    role: any
-  ): Record<string, { min: number; max: number }> {
-    const players = this.playerManager
-      .getAllPlayers()
-      .filter((p) => p.role === role);
-    const rawMetrics = players.map((p) => ({
-      kda: this.playerStat.getKDAValue(p),
-      dpm: this.playerStat.getDamagePerMinuteValue(p),
-      kp: this.playerStat.getKillParticipationValue(p),
-      gpm: this.playerStat.getGoldPerMinuteValue(p),
-      dpg: this.playerStat.getDamagePerGoldValue(p),
-      vspm: this.playerStat.getVisionScorePerMinuteValue(p),
-      cspm: this.playerStat.getCSPerMinuteValue(p),
-    }));
-
-    const bounds: Record<string, { min: number; max: number }> = {} as any;
-    for (const m of this.metrics) {
-      const vals = rawMetrics
-        .map((r) => r[m.key])
-        .filter((v) => Number.isFinite(v));
-      let min = vals.length ? Math.min(...vals) : 0;
-      let max = vals.length ? Math.max(...vals) : 0;
-      if (!isFinite(min)) min = 0;
-      if (!isFinite(max)) max = 0;
-      if (min === max && max !== 0) min = 0;
-      bounds[m.key] = { min, max };
-    }
-    return bounds;
-  }
+  // role bounds are provided by PlayerStatService
 
   private scaleToPercent(value: number, min: number, max: number): number {
     if (max === min) return value === max ? 1 : 0;

@@ -75,36 +75,23 @@ export class PlayerRadarService {
   }
 
   private getRoleMetricBounds(role: Role): { min: number; max: number }[] {
-    const players = this.getPlayersForRole(role);
-    const metrics = players.map((p) => this.getRawRadarMetrics(p));
-
-    if (metrics.length === 0) {
-      return RADAR_CHART_LABELS.map(() => ({ min: 0, max: 0 }));
-    }
-
-    return RADAR_CHART_LABELS.map((_, i) => {
-      const values = metrics.map((m) => m[i]).filter((v) => Number.isFinite(v));
-      let min = values.length ? Math.min(...values) : 0;
-      let max = values.length ? Math.max(...values) : 0;
-
-      if (!isFinite(min)) min = 0;
-      if (!isFinite(max)) max = 0;
-
-      if (min === max && max !== 0) min = 0;
-
-      return { min, max };
-    });
+    // Use PlayerStatService helper to compute per-role bounds and map to ordered array
+    const boundsMap = this.playerStat.getRoleMetricBounds(role);
+    if (!boundsMap) return RADAR_CHART_LABELS.map(() => ({ min: 0, max: 0 }));
+    const keys = ['kda', 'dpm', 'kp', 'gpm', 'dpg', 'vspm', 'cspm'];
+    return keys.map((k) => boundsMap[k] ?? { min: 0, max: 0 });
   }
 
   private getRawRadarMetrics(player: Player): number[] {
+    const map = this.playerStat.getRawMetricsForPlayer(player);
     return [
-      this.playerStat.getKDAValue(player),
-      this.playerStat.getDamagePerMinuteValue(player),
-      this.playerStat.getKillParticipationValue(player),
-      this.playerStat.getGoldPerMinuteValue(player),
-      this.playerStat.getDamagePerGoldValue(player),
-      this.playerStat.getVisionScorePerMinuteValue(player),
-      this.playerStat.getCSPerMinuteValue(player),
+      map['kda'],
+      map['dpm'],
+      map['kp'],
+      map['gpm'],
+      map['dpg'],
+      map['vspm'],
+      map['cspm'],
     ];
   }
 
