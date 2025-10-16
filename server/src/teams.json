@@ -179,6 +179,30 @@
         "PC JackEboy"
       ],
       "LBLCS": true
+    },
+    {
+      "id": 15,
+      "name": "LPP Boiz",
+      "playersNames": [
+        "LPP Sniperboy227",
+        "LPP Sauce",
+        "LordSpud",
+        "LPP 8countnugs",
+        "LPP XannyGrannie"
+      ],
+      "LBLCS": true
+    },
+    {
+      "id": 16,
+      "name": "Omega G UncLeashed",
+      "playersNames": [
+        "Vicr0",
+        "Fallen Artemis",
+        "Princeton",
+        "Adjustement",
+        "Concrete"
+      ],
+      "LBLCS": true
     }
   ]
 }
