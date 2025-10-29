@@ -203,6 +203,18 @@
         "Concrete"
       ],
       "LBLCS": true
+    },
+    {
+      "id": 17,
+      "name": "Forge Esport Chaos",
+      "playersNames": [
+        "noodnarb",
+        "Juritht",
+        "Sovergn",
+        "VVSAL",
+        "Spartan Mason"
+      ],
+      "LBLCS": true
     }
   ]
 }
